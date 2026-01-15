@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - MATRIX_HACK 2026</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loader-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s;">
+        <img src="load.png" alt="Loading..." style="width: 450px; height: auto; animation: pulse 1.5s infinite;">
+    </div>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <nav
+        style="height: auto; padding: 20px 0; background: linear-gradient(to bottom, rgba(0,0,0,1), transparent); flex-direction: column;">
+
+        <!-- Top Row: College Info & logo -->
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; margin-top: 25px;">
+                <img src="PEC Logo.png" alt="PEC Logo"
+                    style="height: 110px; width: auto; filter: drop-shadow(0 0 5px var(--neon-green)); margin-top: -15px;">
+                <div style="text-align: center;">
+                    <div class="header-title"
+                        style="margin: 0; font-size: 2.5rem; letter-spacing: 3px; color: #ffffff; font-weight: 800;">
+                        PRATHYUSHA
+                        ENGINEERING COLLEGE</div>
+                    <div class="header-subtitle"
+                        style="margin-top: 5px; font-size: 1.2rem; letter-spacing: 4px; font-weight: bold; color: #fff;">
+                        AN AUTONOMOUS INSTITUTION</div>
+                    <div class="accreditation-text" style="margin-top: 8px; font-size: 0.9rem; opacity: 0.9;">
+                        Approved by AICTE & Affiliated to Anna University, NAAC "A" Grade Accredited Institution<br>
+                        National Board of Accreditation (NBA) accredited Programmes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tag Strip (Marquee) -->
+            <div class="logo-marquee-container">
+                <div class="logo-marquee-content">
+                    <!-- Duplicated Content for Seamless Scroll -->
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                </div>
+            </div>
+        </div>
+        <!-- NEW: Moving News Strip -->
+        <div class="news-marquee-container">
+            <div class="news-marquee-content">
+                <a href="register.html">
+                    <span>REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ...
+                        REGISTRATIONS STARTS SOON ...</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Middle Row: Logo Strip REMOVED -->
+
+        <!-- Bottom Row: Nav Links (Original Navigation) -->
+        <div
+            style="display: flex; justify-content: space-between; width: 100%; padding: 10px 40px; border-top: 1px solid rgba(0, 255, 65, 0.2); margin-top: 15px;">
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> [ HOME ]</a>
+                <a href="about.html"><i class="fas fa-info-circle"></i> [ ABOUT ]</a>
+            </div>
+            <div class="nav-links">
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> [ LOGIN ]</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> [ REGISTER ]</a>
+                <a href="prizes.html"><i class="fas fa-trophy"></i> [ PRIZES ]</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero hidden-el">
+        <div class="pill-badge">
+            <span class="status-dot"></span> [ IDENTITY: AUTONOMOUS NODE ]
+        </div>
+
+        <h1 class="glitch-title">&gt;_ ORIGIN:PEC</h1>
+
+        <div class="container" style="max-width: 900px; text-align: center;">
+            <p style="font-size: 1.2rem; line-height: 1.8; color: #EEEEEE; margin-bottom: 20px;">
+                Deep within the network of <strong style="color: var(--neon-green);">Prathyusha Engineering
+                    College</strong>, a glitch has been found.
+                XPLOITX 2026 is not just an event; it is a simulation designed to test the limits of your logic.
+            </p>
+            <p style="font-size: 1.2rem; line-height: 1.8; color: #EEEEEE;">
+                We are an Autonomous Institution gathering the brightest minds to bridge the gap between theoretical
+                security and real-world cyber warfare.
+                Whether you are here to build or to break, the system awaits you.
+            </p>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- SKILLS SECTION -->
+        <section>
+            <h2 class="section-header" style="text-align: center; margin-bottom: 40px;">&gt;_ SKILL UPLOAD COMPLETE</h2>
+            <p class="sub-header" style="text-align: center;">By participating in this 2-day breach, you will gain
+                hands-on experience in critical cybersecurity domains:</p>
+
+            <div class="cards-grid hidden-el">
+                <div class="card card-3d">
+                    <span class="card-icon">🛡️</span>
+                    <h3>Digital Forensics & Defense</h3>
+                    <p>Learn how to trace attacks and recover data after a breach, a vital skill for modern security
+                        analysts.</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon">🦠</span>
+                    <h3>Malware Dissection</h3>
+                    <p>Move beyond antivirus software. Learn to analyze malicious code behavior and reverse-engineer
+                        threats.</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon">🕵️</span>
+                    <h3>OSINT</h3>
+                    <p>Master the art of gathering intelligence from publicly available sources to identify
+                        vulnerabilities.</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon">💻</span>
+                    <h3>Secure Coding</h3>
+                    <p>It’s not enough to write code that works; you will learn to write code that cannot be broken.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="schedule-section">
+            <h2 class="section-header" style="text-align: center; margin-bottom: 40px;">&gt;_ EVENT PROTOCOL & TIMELINE
+            </h2>
+
+            <div class="terminal-window"
+                style="max-width: 1000px; margin: 0 auto; border: 1px solid var(--neon-green); box-shadow: 0 0 20px rgba(0, 255, 65, 0.15);">
+                <div class="terminal-bar">
+                    <div class="dots">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <div class="terminal-title">agenda@xploitx:~/schedule.log</div>
+                </div>
+
+                <div class="terminal-body" style="padding: 40px; font-family: 'Share Tech Mono', monospace;">
+
+                    <!-- DAY 1 -->
+                    <div class="day-block" style="margin-bottom: 50px;">
+                        <h3
+                            style="color: var(--bg-black); background: var(--neon-green); display: inline-block; padding: 5px 15px; border-radius: 4px; font-weight: bold; margin-bottom: 25px;">
+                            [ DAY 1 : MARCH 13 ]
+                        </h3>
+
+                        <ul
+                            style="list-style: none; padding-left: 0; border-left: 2px solid rgba(0, 255, 65, 0.3); margin-left: 10px;">
+                            <li style="margin-bottom: 25px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green);"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">09:30
+                                        AM - 11:00 AM</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">System
+                                        Boot: Inauguration</span>
+                                </div>
+                                <div
+                                    style="margin-top: 5px; color: #88ff88; font-size: 0.9rem; margin-left: 175px; opacity: 0.8;">
+                                    Opening ceremony and mission briefing.
+                                </div>
+                            </li>
+
+                            <li style="margin-bottom: 25px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--dark-green); border-radius: 50%;"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">11:00
+                                        AM - 05:00 PM</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Phase
+                                        I: Malware Analysis</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Analyze malicious code behavior and reverse-engineer threats.
+                                </div>
+                            </li>
+
+                            <li style="margin-bottom: 25px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--dark-green); border-radius: 50%;"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">05:00
+                                        PM - 11:00 PM</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Phase
+                                        II: Secure Coding</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Identify vulnerabilities and patch security holes.
+                                </div>
+                            </li>
+
+                            <li style="margin-bottom: 0; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--dark-green); border-radius: 50%;"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">11:00
+                                        PM - 05:00 AM</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Phase
+                                        III: OSINT Hunt</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Open Source Intelligence gathering and digital footprint tracking.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- DAY 2 -->
+                    <div class="day-block">
+                        <h3
+                            style="color: var(--bg-black); background: var(--neon-green); display: inline-block; padding: 5px 15px; border-radius: 4px; font-weight: bold; margin-bottom: 25px;">
+                            [ DAY 2 : MARCH 14 ]
+                        </h3>
+
+                        <ul
+                            style="list-style: none; padding-left: 0; border-left: 2px solid rgba(0, 255, 65, 0.3); margin-left: 10px;">
+                            <li style="margin-bottom: 25px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--dark-green); border-radius: 50%;"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">05:00
+                                        AM - 11:00 AM</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Phase
+                                        IV: Capture The Flag</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Final assault: Breach the server and capture the target.
+                                </div>
+                            </li>
+
+                            <li style="margin-bottom: 25px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green);"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">EVENT
+                                        1</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Cyber
+                                        Security Paper Presentation</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Present your research and findings.
+                                </div>
+                            </li>
+
+                            <li style="margin-bottom: 25px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green);"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">EVENT
+                                        2</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Digital
+                                        Forensics</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Trace the attack and recover the data.
+                                </div>
+                            </li>
+
+                            <li style="margin-bottom: 25px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green);"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">EVENT
+                                        3</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Network
+                                        Defense</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Secure the perimeter.
+                                </div>
+                            </li>
+
+                            <li style="margin-bottom: 0px; padding-left: 30px; position: relative;">
+                                <span
+                                    style="position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green);"></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                                    <span
+                                        style="color: var(--neon-green); font-weight: bold; font-size: 1.1rem; min-width: 160px;">CLOSING</span>
+                                    <span
+                                        style="color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Valedictory
+                                        & Prize Distribution</span>
+                                </div>
+                                <div style="margin-top: 5px; color: #aaffaa; font-size: 0.9rem; margin-left: 175px;">
+                                    &gt; Ceremony and Awards.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ SECTION -->
+        <section class="register-section hidden-el">
+            <h2 class="section-header" style="margin-bottom: 30px;">&gt;_ FAQ / SYSTEM REQUIREMENTS</h2>
+
+            <div class="about-content" style="text-align: left;">
+                <div class="info-block" style="text-align: left;">
+                    <h3>Who can enter the Matrix?</h3>
+                    <p>Open to all engineering and technology students. Whether you are a fresh [NOOB] or a seasoned
+                        [HACKER], there is a place for you.</p>
+                </div>
+                <div class="info-block" style="text-align: left;">
+                    <h3>Do I need a team?</h3>
+                    <p>Yes. You can form a squad of up to 4 members. If you are a solo operative, register individually
+                        and we may group you.</p>
+                </div>
+                <div class="info-block" style="text-align: left;">
+                    <h3>What equipment is required?</h3>
+                    <p>Bring your own laptop ("Cyber Deck"), chargers, and any specific software tools you prefer for
+                        coding and analysis.</p>
+                </div>
+                <div class="info-block" style="text-align: left;">
+                    <h3>Is food provided?</h3>
+                    <p>Yes. Fuel (Food & Snacks) will be provided to keep your energy levels high during the night
+                        operations.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RULES SECTION -->
+        <section>
+            <h2 class="section-header" style="text-align: center; margin-bottom: 40px;">&gt;_ RULES OF ENGAGEMENT</h2>
+            <div class="terminal-window" style="max-width: 800px; margin: 0 auto;">
+                <div class="terminal-bar">
+                    <div class="dots">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <div class="terminal-title">admin@matrix:~/conduct</div>
+                </div>
+                <div class="terminal-body" style="text-align: left;">
+                    <p style="color: #EEEEEE; margin-bottom: 20px;">While we are breaking into the simulation,
+                        real-world rules apply:</p>
+
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li style="margin-bottom: 15px; color: #aaffaa;">
+                            <strong style="color: var(--neon-green);">&gt; White Hat Only:</strong> All hacking must be
+                            confined to the XPLOITX environment. Attacking college infrastructure is grounds for
+                            immediate termination.
+                        </li>
+                        <li style="margin-bottom: 15px; color: #aaffaa;">
+                            <strong style="color: var(--neon-green);">&gt; Respect the Grid:</strong> Be respectful to
+                            fellow hackers, mentors, and volunteers.
+                        </li>
+                        <li style="margin-bottom: 15px; color: #aaffaa;">
+                            <strong style="color: var(--neon-green);">&gt; Original Code:</strong> Plagiarism is a
+                            system error. Submit only your own work.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Organizing Nodes Section (Coordinators) -->
+    <footer class="organizing-nodes-section">
+        <h2 class="nodes-header">>_ ORGANIZING NODES</h2>
+        <p class="nodes-subtitle">Meet the architects of the simulation</p>
+
+        <div class="nodes-grid">
+            <!-- Card 1: Event Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">EVENT HEADS</div>
+                    <span class="node-role-label">System Administrators</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Dr. V.R. KAVITHA</strong>
+                            <span>+91 999-999-9999</span>
+                        </li>
+                        <li class="node-item">
+                            <strong>Dr. S.PADMAPRIYA</strong>
+                            <span>+91 888-888-8888</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 2: Staff Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-id-card-alt"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">STAFF COORDS</div>
+                    <span class="node-role-label">Lead Engineers</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Mrs. P.M.J. JEBA JINGLE</strong>
+                            <span>+91 777-777-7777</span>
+                        </li>
+                        <li class="node-item">
+                            <strong>Mrs. A. REBECAL JOYS</strong>
+                            <span>+91 666-666-6666</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 3: Registration Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">REGISTRATION</div>
+                    <span class="node-role-label">Security Analysts</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Mr. D. ANTONY ALLWYN</strong>
+                            <span>+91 555-555-5555</span>
+                        </li>
+                        <li class="node-item">
+                            <strong>Mr. J. BENNATAJ JANSY</strong>
+                            <span>+91 444-444-4444</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-copyright">
+            <div>&copy; 2026 MATRIX_HACK • All systems operational</div>
+            <div style="margin-top: 5px; font-style: italic;">"Free your mind." - Morpheus</div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

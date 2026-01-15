@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prizes - MATRIX_HACK 2026</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loader-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s;">
+        <img src="load.png" alt="Loading..." style="width: 450px; height: auto; animation: pulse 1.5s infinite;">
+    </div>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <nav
+        style="height: auto; padding: 20px 0; background: linear-gradient(to bottom, rgba(0,0,0,1), transparent); flex-direction: column;">
+
+        <!-- Top Row: College Info & logo -->
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; margin-top: 25px;">
+                <img src="PEC Logo.png" alt="PEC Logo"
+                    style="height: 110px; width: auto; filter: drop-shadow(0 0 5px var(--neon-green)); margin-top: -15px;">
+                <div style="text-align: center;">
+                    <div class="header-title"
+                        style="margin: 0; font-size: 2.5rem; letter-spacing: 3px; color: #ffffff; font-weight: 800;">
+                        PRATHYUSHA
+                        ENGINEERING COLLEGE</div>
+                    <div class="header-subtitle"
+                        style="margin-top: 5px; font-size: 1.2rem; letter-spacing: 4px; font-weight: bold; color: #fff;">
+                        AN AUTONOMOUS INSTITUTION</div>
+                    <div class="accreditation-text" style="margin-top: 8px; font-size: 0.9rem; opacity: 0.9;">
+                        Approved by AICTE & Affiliated to Anna University, NAAC "A" Grade Accredited Institution<br>
+                        National Board of Accreditation (NBA) accredited Programmes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tag Strip (Marquee) -->
+            <div class="logo-marquee-container">
+                <div class="logo-marquee-content">
+                    <!-- Duplicated Content for Seamless Scroll -->
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                </div>
+            </div>
+        </div>
+        <!-- NEW: Moving News Strip -->
+        <div class="news-marquee-container">
+            <div class="news-marquee-content">
+                <a href="register.html">
+                    <span>REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ...
+                        REGISTRATIONS STARTS SOON ...</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Middle Row: Logo Strip REMOVED -->
+
+        <!-- Bottom Row: Nav Links (Original Navigation) -->
+        <div
+            style="display: flex; justify-content: space-between; width: 100%; padding: 10px 40px; border-top: 1px solid rgba(0, 255, 65, 0.2); margin-top: 15px;">
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> [ HOME ]</a>
+                <a href="about.html"><i class="fas fa-info-circle"></i> [ ABOUT ]</a>
+            </div>
+            <div class="nav-links">
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> [ LOGIN ]</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> [ REGISTER ]</a>
+                <a href="prizes.html"><i class="fas fa-trophy"></i> [ PRIZES ]</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero hidden-el">
+        <div class="pill-badge">
+            <span class="status-dot"></span> REWARD MATRIX • MATRIX_HACK 2026
+        </div>
+
+        <h1 class="glitch-title">PRIZES & REWARDS</h1>
+
+        <p>
+            Glory awaits the chosen ones. Compete for prizes that will elevate your status in the digital realm.
+        </p>
+    </section>
+
+    <div class="container">
+        <section>
+            <div class="cards-grid hidden-el">
+                <div class="card card-3d prize-card">
+                    <span class="card-icon"><i class="fas fa-trophy"></i></span>
+                    <h3>1ST PLACE</h3>
+                    <p class="prize-amount">₹ 10,000</p>
+                    <p>Plus mentorship program and exclusive Matrix swag</p>
+                </div>
+                <div class="card card-3d prize-card">
+                    <span class="card-icon"><i class="fas fa-medal"></i></span>
+                    <h3>2ND PLACE</h3>
+                    <p class="prize-amount">₹ 5,000</p>
+                    <p>Advanced workshops and networking opportunities</p>
+                </div>
+                <div class="card card-3d prize-card">
+                    <span class="card-icon"><i class="fas fa-award"></i></span>
+                    <h3>3RD PLACE</h3>
+                    <p class="prize-amount">₹ 2,500</p>
+                    <p>Tech gadgets and community recognition</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-header">[ SPECIAL CATEGORIES ]</h2>
+            <div class="cards-grid hidden-el">
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-robot"></i></span>
+                    <h3>BEST AI/ML PROJECT</h3>
+                    <p>₹ 2,000 + API credits</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-shield-alt"></i></span>
+                    <h3>BEST SECURITY SOLUTION</h3>
+                    <p>₹ 2,000 + Security tools</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-users"></i></span>
+                    <h3>BEST TEAM COLLABORATION</h3>
+                    <p>₹ 1,500 + Team building experience</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-lightbulb"></i></span>
+                    <h3>MOST INNOVATIVE IDEA</h3>
+                    <p>₹ 1,000 + Incubator access</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-heart"></i></span>
+                    <h3>PEOPLE'S CHOICE</h3>
+                    <p>₹ 500 + Community features</p>
+                </div>
+            </div>
+    </div>
+
+    <!-- Organizing Nodes Section (Coordinators) -->
+    <footer class="organizing-nodes-section">
+        <h2 class="nodes-header">>_ ORGANIZING NODES</h2>
+        <p class="nodes-subtitle">Meet the architects of the simulation</p>
+
+        <div class="nodes-grid">
+            <!-- Card 1: Event Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">EVENT HEADS</div>
+                    <span class="node-role-label">System Administrators</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Dr. V.R. KAVITHA</strong>
+                            <span>+91 999-999-9999</span>
+                        </li>
+                        <li class="node-item">
+                            <strong>Dr. S.PADMAPRIYA</strong>
+                            <span>+91 888-888-8888</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 2: Staff Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-id-card-alt"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">STAFF COORDS</div>
+                    <span class="node-role-label">Lead Engineers</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Mrs. P.M.J. JEBA JINGLE</strong>
+                            <span>+91 777-777-7777</span>
+                        </li>
+                        <li class="node-item">
+                            <strong>Mrs. A. REBECAL JOYS</strong>
+                            <span>+91 666-666-6666</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 3: Registration Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">REGISTRATION</div>
+                    <span class="node-role-label">Security Analysts</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Mr. D. ANTONY ALLWYN</strong>
+                            <span>+91 555-555-5555</span>
+                        </li>
+                        <li class="node-item">
+                            <strong>Mr. J. BENNATAJ JANSY</strong>
+                            <span>+91 444-444-4444</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-copyright">
+            <div>&copy; 2026 MATRIX_HACK • All systems operational</div>
+            <div style="margin-top: 5px; font-style: italic;">"Free your mind." - Morpheus</div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

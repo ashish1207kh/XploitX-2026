@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - XploitX-2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050505;
+            color: #00FF41;
+            font-family: 'Share Tech Mono', monospace;
+            padding: 20px;
+        }
+
+        h1 {
+            border-bottom: 2px solid #00FF41;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #003B00;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #001f00;
+            color: #fff;
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .member-list {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        .wa-link {
+            color: #25D366;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        @media print {
+
+            button,
+            #login-overlay {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            table {
+                border-color: black;
+            }
+
+            th,
+            td {
+                border-color: black;
+                color: black;
+            }
+
+            th {
+                background: #ddd;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-overlay">
+        <div style="text-align: center; border: 1px solid #00FF41; padding: 40px;">
+            <h2>ADMIN ACCESS</h2>
+            <input type="password" id="admin-pass" placeholder="Enter Password"
+                style="padding: 10px; background: #000; border: 1px solid #00FF41; color: #fff;">
+            <button onclick="checkAdmin()"
+                style="padding: 10px 20px; background: #00FF41; color: #000; font-weight: bold; border: none; cursor: pointer;">UNLOCK</button>
+        </div>
+    </div>
+
+    <h1>> SYSTEM_ADMINISTRATOR_VIEW</h1>
+    <div id="stats">Total Teams: Loading...</div>
+
+    <div style="margin: 20px 0;">
+        <button onclick="downloadCSV()"
+            style="padding: 10px; background: #00FF41; border: none; font-weight: bold; cursor: pointer; margin-right: 10px;">[
+            DOWNLOAD CSV ]</button>
+        <button onclick="printPDF()"
+            style="padding: 10px; background: #008F11; color: white; border: none; font-weight: bold; cursor: pointer;">[
+            PRINT / SAVE PDF ]</button>
+    </div>
+
+    <table id="teams-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Team Name</th>
+                <th>Event</th>
+                <th>Leader (Name / Phone / WA)</th>
+                <th>All Members</th>
+                <th>Password</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will load here -->
+        </tbody>
+    </table>
+
+    <script>
+        function checkAdmin() {
+            const p = document.getElementById('admin-pass').value;
+            if (p === 'admin123') {
+                document.getElementById('login-overlay').style.display = 'none';
+                loadData();
+            } else {
+                alert('ACCESS DENIED');
+            }
+        }
+
+        async function loadData() {
+            const res = await fetch('/api/admin/all-teams');
+            window.teamsData = await res.json();
+
+            document.getElementById('stats').innerText = `Total Teams: ${window.teamsData.length}`;
+
+            const tbody = document.querySelector('#teams-table tbody');
+            tbody.innerHTML = '';
+
+            window.teamsData.forEach(t => {
+                const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
+                const waLink = leader && leader.whatsapp ? `<a href="https://wa.me/${leader.whatsapp}" target="_blank" class="wa-link">[WA]</a>` : '';
+
+                let membersHtml = '';
+                t.members.forEach(m => {
+                    membersHtml += `<div>- ${m.name} (${m.role})</div>`;
+                });
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.team_id}</td>
+                    <td>${t.name}</td>
+                    <td>${t.event}</td>
+                        ${leader ? leader.name : 'N/A'}<br>
+                        ${leader ? leader.phone : ''}<br>
+                        ${leader ? (leader.whatsapp || 'N/A') : ''} ${waLink}
+                    </td>
+                    <td class="member-list">${membersHtml}</td>
+                    <td>${t.password}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        function downloadCSV() {
+            if (!window.teamsData) return;
+            let csv = 'Team ID,Team Name,Event,Leader Name,Leader Phone,Leader WhatsApp,Member Count\n';
+
+            window.teamsData.forEach(t => {
+                const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
+                csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hackathon_teams.csv';
+            a.click();
+        }
+
+        function printPDF() {
+            window.print();
+        }
+    </script>
+</body>
+
+</html>
