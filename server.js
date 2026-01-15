@@ -1,31 +1,54 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const nodemailer = require('nodemailer');
 
-// DB Adapters
-const SQLiteDB = require('./db-sqlite');
-const PostgresDB = require('./db-postgres');
-
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '.')));
 
-// Initialize DB based on Environment
-let db;
-if (process.env.POSTGRES_URL || process.env.VERCEL) {
-    db = new PostgresDB();
-} else {
-    db = new SQLiteDB();
-}
+// Initialize SQLite Database
+const db = new sqlite3.Database('./hackathon.db', (err) => {
+    if (err) {
+        console.error('Error opening database', err.message);
+    } else {
+        console.log('Connected to the SQLite database.');
+        initDb();
+    }
+});
 
-// Initialize DB tables
-db.init().catch(err => console.error("DB Init Error:", err));
+function initDb() {
+    db.run(`CREATE TABLE IF NOT EXISTS teams (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        team_id TEXT UNIQUE, 
+        name TEXT,
+        email TEXT UNIQUE,
+        password TEXT,
+        event TEXT,
+        transaction_id TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS members (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        team_db_id INTEGER,
+        name TEXT,
+        age INTEGER,
+        email TEXT,
+        phone TEXT,
+        whatsapp TEXT,
+        college TEXT,
+        address TEXT,
+        role TEXT,
+        FOREIGN KEY(team_db_id) REFERENCES teams(id)
+    )`);
+}
 
 
 // --- EMAIL CONFIGURATION ---
@@ -62,22 +85,35 @@ app.post('/api/auth/register', async (req, res) => {
     const teamIdStr = teamName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
 
     try {
-        const teamDbId = await db.createTeam({
-            teamId: teamIdStr,
-            name: teamName,
-            email,
-            password,
-            event,
-            transactionId
-        });
+        // Helper to run query
+        const runQuery = (sql, params = []) => {
+            return new Promise((resolve, reject) => {
+                db.run(sql, params, function (err) {
+                    if (err) reject(err);
+                    else resolve(this);
+                });
+            });
+        };
+
+        // 1. Create Team
+        const result = await runQuery(
+            `INSERT INTO teams (team_id, name, email, password, event, transaction_id) VALUES (?, ?, ?, ?, ?, ?)`,
+            [teamIdStr, teamName, email, password, event, transactionId]
+        );
+        const teamDbId = result.lastID;
 
         let leaderWhatsApp = "";
 
+        // 2. Add Members
         for (let i = 0; i < members.length; i++) {
             const m = members[i];
             const role = i === 0 ? 'LEADER' : 'MEMBER';
             if (i === 0) leaderWhatsApp = m.whatsapp;
-            await db.addMember(teamDbId, m, role);
+
+            await runQuery(
+                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, address, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.address, role]
+            );
         }
 
         const emailBody = `
@@ -123,7 +159,12 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/reset-password', async (req, res) => {
     const { teamId, newPassword } = req.body;
     try {
-        await db.updatePassword(teamId, newPassword);
+        await new Promise((resolve, reject) => {
+            db.run(`UPDATE teams SET password = ? WHERE team_id = ?`, [newPassword, teamId], function (err) {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
         res.json({ success: true, message: 'Password Updated Successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -135,9 +176,22 @@ app.post('/api/auth/login', async (req, res) => {
     const { loginId, password } = req.body;
 
     try {
-        const team = await db.getTeamByLogin(loginId);
+        const team = await new Promise((resolve, reject) => {
+            db.get(
+                `SELECT * FROM teams WHERE team_id = ? OR email = ?`,
+                [loginId, loginId],
+                (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                }
+            );
+        });
 
-        if (team && team.password === password) {
+        if (!team) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        if (team.password === password) { // In production use bcrypt
             res.json({
                 success: true,
                 team: {
@@ -156,19 +210,30 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // Admin Route: Get ALL Data
-app.get('/api/admin/all-teams', async (req, res) => {
+app.get('/api/admin/data', async (req, res) => {
     try {
-        const teams = await db.getAllTeams();
-        const members = await db.getAllMembers();
-
-        const result = teams.map(team => {
-            return {
-                ...team,
-                members: members.filter(m => m.team_db_id === team.id)
-            };
+        // We'll return an array of { ...team, members: [...] }
+        const teams = await new Promise((resolve, reject) => {
+            db.all(`SELECT * FROM teams`, [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
         });
-        res.json(result);
+
+        const fullData = [];
+        for (const team of teams) {
+            const members = await new Promise((resolve, reject) => {
+                db.all(`SELECT * FROM members WHERE team_db_id = ?`, [team.id], (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows);
+                });
+            });
+            fullData.push({ ...team, members });
+        }
+
+        res.json(fullData);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -178,10 +243,22 @@ app.get('/api/admin/all-teams', async (req, res) => {
 app.get('/api/team/:id', async (req, res) => {
     const teamId = req.params.id;
     try {
-        const team = await db.getTeamById(teamId);
+        const team = await new Promise((resolve, reject) => {
+            db.get(`SELECT * FROM teams WHERE team_id = ?`, [teamId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
         if (!team) return res.status(404).json({ error: 'Team not found' });
 
-        const members = await db.getMembers(team.id);
+        const members = await new Promise((resolve, reject) => {
+            db.all(`SELECT * FROM members WHERE team_db_id = ?`, [team.id], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
         res.json({
             team: team,
             members: members
@@ -192,6 +269,7 @@ app.get('/api/team/:id', async (req, res) => {
 });
 
 // Update Team Members (For Dashboard Save)
+// Update Team Members (For Dashboard Save)
 app.post('/api/team/:id/update', async (req, res) => {
     const teamId = req.params.id;
     const { members } = req.body;
@@ -201,19 +279,43 @@ app.post('/api/team/:id/update', async (req, res) => {
     }
 
     try {
-        const teamRow = await db.getTeamById(teamId);
+        const teamRow = await new Promise((resolve, reject) => {
+            db.get(`SELECT * FROM teams WHERE team_id = ?`, [teamId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
         if (!teamRow) return res.status(404).json({ error: 'Team not found' });
 
         const teamDbId = teamRow.id;
 
-        // Transaction simulation (Postgres has real transactions, SQLite serialized)
-        // Ideally DB classes should handle transaction block, but here we just sequentially execute
-        await db.deleteAllMembers(teamDbId);
+        // Delete old members
+        await new Promise((resolve, reject) => {
+            db.run(`DELETE FROM members WHERE team_db_id = ?`, [teamDbId], function (err) {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        // Add new members
+        const runQuery = (sql, params = []) => {
+            return new Promise((resolve, reject) => {
+                db.run(sql, params, function (err) {
+                    if (err) reject(err);
+                    else resolve(this);
+                });
+            });
+        };
 
         for (let i = 0; i < members.length; i++) {
             const m = members[i];
             const role = m.role || (i === 0 ? 'LEADER' : 'MEMBER');
-            await db.addMember(teamDbId, m, role);
+
+            await runQuery(
+                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, address, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.address, role]
+            );
         }
 
         res.json({ success: true, message: 'Team updated successfully' });
