@@ -155,10 +155,10 @@ if (regForm) {
                 addMemberCard(i);
             }
         }
-        // Remove if above max (optional, but good for consistency)
-        else if (currentCount > currentMax) {
-            for (let i = currentCount; i > currentMax; i--) {
-                membersContainer.lastElementChild.remove();
+        // Remove if above min (User Request: "Why showing if not compulsory?")
+        else if (currentCount > currentMin) {
+            for (let i = currentCount; i > currentMin; i--) {
+                membersContainer.lastElementChild.remove(); // Safely remove the last added card
             }
         }
     }
