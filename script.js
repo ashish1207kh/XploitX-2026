@@ -60,6 +60,7 @@ if (regForm) {
     const confirmBtn = document.getElementById('confirm-payment-btn');
     const cancelBtn = document.getElementById('cancel-payment-btn');
     const amountDisplay = document.getElementById('payment-amount-display');
+    const submitBtn = regForm.querySelector('button[type="submit"]');
 
     // Initialize
     function init() {
@@ -88,11 +89,22 @@ if (regForm) {
         updateFeeDisplay();
         enforceTeamSize();
         updateButtons();
+        updateSubmitButton();
     }
 
     function updateFeeDisplay() {
         if (amountDisplay) {
             amountDisplay.innerText = `AMOUNT: ₹ ${currentFee}.00`;
+        }
+    }
+
+    function updateSubmitButton() {
+        if (submitBtn) {
+            if (currentFee === 0) {
+                submitBtn.innerText = "[ REGISTER NOW ]";
+            } else {
+                submitBtn.innerText = "[ PROCEED TO PAYMENT ]";
+            }
         }
     }
 
