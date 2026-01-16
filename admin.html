@@ -6,36 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - XploitX-2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
+        /* Admin specific overrides */
         body {
-            background-color: #050505;
-            color: #00FF41;
-            font-family: 'Share Tech Mono', monospace;
+            padding: 0;
+            /* Let styles.css handle layout */
+        }
+
+        .admin-container {
             padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         h1 {
             border-bottom: 2px solid #00FF41;
             padding-bottom: 10px;
+            margin-top: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background: rgba(0, 20, 0, 0.8);
         }
 
         th,
         td {
             border: 1px solid #003B00;
-            padding: 10px;
+            padding: 12px;
             text-align: left;
-            vertical-align: top;
+            color: #eee;
         }
 
         th {
             background: #001f00;
-            color: #fff;
+            color: #00FF41;
+            font-weight: bold;
         }
 
         tr:hover {
@@ -53,13 +63,15 @@
             font-weight: bold;
         }
 
+        /* Login Overlay Styling Update */
         #login-overlay {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(5px);
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -69,7 +81,9 @@
         @media print {
 
             button,
-            #login-overlay {
+            #login-overlay,
+            nav,
+            .news-marquee-container {
                 display: none !important;
             }
 
@@ -100,121 +114,180 @@
     <canvas id="matrix-bg"
         style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;"></canvas>
 
-    <script>
-        // Matrix code rain animation
-        const canvas = document.getElementById('matrix-bg');
-        const ctx = canvas.getContext('2d');
+    <nav
+        style="height: auto; padding: 20px 0; background: linear-gradient(to bottom, rgba(0,0,0,1), transparent); flex-direction: column;">
+        <!-- Top Row: College Info & logo -->
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; margin-top: 25px;">
+                <img src="PEC Logo.png" alt="PEC Logo"
+                    style="height: 155px; width: auto; filter: drop-shadow(0 0 5px var(--neon-green)); margin-top: -15px;">
+                <div style="text-align: center;">
+                    <div class="header-title"
+                        style="margin: 0; font-size: 2.5rem; letter-spacing: 3px; color: #ffffff; font-weight: 800;">
+                        PRATHYUSHA
+                        ENGINEERING COLLEGE</div>
+                    <div class="header-subtitle"
+                        style="margin-top: 5px; font-size: 1.2rem; letter-spacing: 4px; font-weight: bold; color: #fff;">
+                        (AN AUTONOMOUS INSTITUTION)</div>
+                    <div class="accreditation-text"
+                        style="margin-top: 8px; font-size: 0.9rem; opacity: 1; color: #00BFFF; font-weight: bold;">
+                        Approved by AICTE & Affiliated to Anna University, NAAC "A" Grade Accredited Institution<br>
+                        National Board of Accreditation (NBA) accredited Programmes
+                    </div>
+                </div>
+            </div>
+            <!-- Tag Strip (Marquee) -->
+            <div class="logo-marquee-container">
+                <div class="logo-marquee-content">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                </div>
+            </div>
+        </div>
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        <div class="news-marquee-container">
+            <div class="news-marquee-content">
+                <a href="register.html">
+                    <span>REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ...
+                        REGISTRATIONS STARTS SOON ...</span>
+                </a>
+            </div>
+        </div>
 
-        const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops = [];
+        <!-- Bottom Row: Nav Links -->
+        <div class="nav-bottom-row">
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> [ HOME ]</a>
+                <a href="about.html"><i class="fas fa-info-circle"></i> [ ABOUT ]</a>
+            </div>
+            <div class="nav-links">
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> [ LOGIN ]</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> [ REGISTER ]</a>
+                <a href="prizes.html"><i class="fas fa-trophy"></i> [ PRIZES ]</a>
+            </div>
+        </div>
+    </nav>
 
-        for (let x = 0; x < columns; x++) {
-            drops[x] = 1;
-        }
+    <div class="admin-container">
+        <script>
+            // Matrix code rain animation (Standalone for Admin if script.js not loaded or to avoid conflicts)
+            const canvas = document.getElementById('matrix-bg');
+            const ctx = canvas.getContext('2d');
 
-        function draw() {
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.04)'; // Darker fade for admin
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#003B00'; // Darker green for admin background effect
-            ctx.font = fontSize + 'px Share Tech Mono';
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-
-        setInterval(draw, 50);
-
-        window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-        });
-    </script>
 
-    <div id="login-overlay">
-        <div style="text-align: center; border: 1px solid #00FF41; padding: 40px; background: #000;">
-            <h2>ADMIN ACCESS</h2>
-            <input type="password" id="admin-pass" placeholder="Enter Password"
-                style="padding: 10px; background: #000; border: 1px solid #00FF41; color: #fff;">
-            <button onclick="checkAdmin()"
-                style="padding: 10px 20px; background: #00FF41; color: #000; font-weight: bold; border: none; cursor: pointer;">UNLOCK</button>
-        </div>
-    </div>
+            const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = [];
 
-    <h1>> SYSTEM_ADMINISTRATOR_VIEW</h1>
-    <div id="stats">Total Teams: Loading...</div>
-
-    <div style="margin: 20px 0;">
-        <button onclick="downloadCSV()"
-            style="padding: 10px; background: #00FF41; border: none; font-weight: bold; cursor: pointer; margin-right: 10px;">[
-            DOWNLOAD CSV ]</button>
-        <button onclick="printPDF()"
-            style="padding: 10px; background: #008F11; color: white; border: none; font-weight: bold; cursor: pointer;">[
-            PRINT / SAVE PDF ]</button>
-    </div>
-
-    <table id="teams-table" style="background: rgba(0,0,0,0.8);">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Team Name</th>
-                <th>Event</th>
-                <th>Leader Details</th>
-                <th>All Members</th>
-                <th>Password</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data will load here -->
-        </tbody>
-    </table>
-
-    <script>
-        function checkAdmin() {
-            const p = document.getElementById('admin-pass').value;
-            if (p === 'admin123') {
-                document.getElementById('login-overlay').style.display = 'none';
-                loadData();
-            } else {
-                alert('ACCESS DENIED');
+            for (let x = 0; x < columns; x++) {
+                drops[x] = 1;
             }
-        }
 
-        async function loadData() {
-            const res = await fetch('/api/admin/all-teams');
-            window.teamsData = await res.json();
+            function draw() {
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            document.getElementById('stats').innerText = `Total Teams: ${window.teamsData.length}`;
+                ctx.fillStyle = '#003B00';
+                ctx.font = fontSize + 'px Share Tech Mono';
 
-            const tbody = document.querySelector('#teams-table tbody');
-            tbody.innerHTML = '';
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-            window.teamsData.forEach(t => {
-                const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
-                const waLink = leader && leader.whatsapp ? `<a href="https://wa.me/${leader.whatsapp}" target="_blank" class="wa-link">[WA]</a>` : '';
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
 
-                let membersHtml = '';
-                t.members.forEach(m => {
-                    membersHtml += `<div>- ${m.name} (${m.role})</div>`;
-                });
+            setInterval(draw, 50);
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        </script>
+
+        <div id="login-overlay">
+            <div style="text-align: center; border: 1px solid #00FF41; padding: 40px; background: #000;">
+                <h2>ADMIN ACCESS</h2>
+                <input type="password" id="admin-pass" placeholder="Enter Password"
+                    style="padding: 10px; background: #000; border: 1px solid #00FF41; color: #fff;">
+                <button onclick="checkAdmin()"
+                    style="padding: 10px 20px; background: #00FF41; color: #000; font-weight: bold; border: none; cursor: pointer;">UNLOCK</button>
+            </div>
+        </div>
+
+        <h1>> SYSTEM_ADMINISTRATOR_VIEW</h1>
+        <div id="stats">Total Teams: Loading...</div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="downloadCSV()"
+                style="padding: 10px; background: #00FF41; border: none; font-weight: bold; cursor: pointer; margin-right: 10px;">[
+                DOWNLOAD CSV ]</button>
+            <button onclick="printPDF()"
+                style="padding: 10px; background: #008F11; color: white; border: none; font-weight: bold; cursor: pointer;">[
+                PRINT / SAVE PDF ]</button>
+        </div>
+
+        <table id="teams-table" style="background: rgba(0,0,0,0.8);">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Team Name</th>
+                    <th>Event</th>
+                    <th>Leader Details</th>
+                    <th>All Members</th>
+                    <th>Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will load here -->
+            </tbody>
+        </table>
+
+        <script>
+            function checkAdmin() {
+                const p = document.getElementById('admin-pass').value;
+                if (p === 'admin123') {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    loadData();
+                } else {
+                    alert('ACCESS DENIED');
+                }
+            }
+
+            async function loadData() {
+                const res = await fetch('/api/admin/all-teams');
+                window.teamsData = await res.json();
+
+                document.getElementById('stats').innerText = `Total Teams: ${window.teamsData.length}`;
+
+                const tbody = document.querySelector('#teams-table tbody');
+                tbody.innerHTML = '';
+
+                window.teamsData.forEach(t => {
+                    const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
+                    const waLink = leader && leader.whatsapp ? `<a href="https://wa.me/${leader.whatsapp}" target="_blank" class="wa-link">[WA]</a>` : '';
+
+                    let membersHtml = '';
+                    t.members.forEach(m => {
+                        membersHtml += `<div>- ${m.name} (${m.role})</div>`;
+                    });
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
                     <td>${t.team_id}</td>
                     <td>${t.name}</td>
                     <td>${t.event}</td>
+                    <td>
                         ${leader ? leader.name : 'N/A'}<br>
                         ${leader ? leader.phone : ''}<br>
                         ${leader ? (leader.whatsapp || 'N/A') : ''} ${waLink}
@@ -222,30 +295,31 @@
                     <td class="member-list">${membersHtml}</td>
                     <td>${t.password}</td>
                 `;
-                tbody.appendChild(tr);
-            });
-        }
-        function downloadCSV() {
-            if (!window.teamsData) return;
-            let csv = 'Team ID,Team Name,Event,Leader Name,Leader Phone,Leader WhatsApp,Member Count\n';
+                    tbody.appendChild(tr);
+                });
+            }
+            function downloadCSV() {
+                if (!window.teamsData) return;
+                let csv = 'Team ID,Team Name,Event,Leader Name,Leader Phone,Leader WhatsApp,Member Count\n';
 
-            window.teamsData.forEach(t => {
-                const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
-                csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
-            });
+                window.teamsData.forEach(t => {
+                    const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
+                    csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
+                });
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'hackathon_teams.csv';
-            a.click();
-        }
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'hackathon_teams.csv';
+                a.click();
+            }
 
-        function printPDF() {
-            window.print();
-        }
-    </script>
+            function printPDF() {
+                window.print();
+            }
+        </script>
+    </div> <!-- End Admin Container -->
 </body>
 
 </html>
