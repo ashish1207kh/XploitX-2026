@@ -42,9 +42,9 @@ if (regForm) {
     // Configuration
     const EVENT_CONFIG = {
         '24 Hrs Hackathon': { min: 4, max: 5, fee: 400 },
-        'paper_presentation': { min: 1, max: 4, fee: 120 },
-        'digital_forensics': { min: 1, max: 4, fee: 0 },
-        'network_defense': { min: 1, max: 4, fee: 0 }
+        'paper_presentation': { min: 2, max: 4, fee: 120 },
+        'digital_forensics': { min: 2, max: 4, fee: 0 },
+        'network_defense': { min: 2, max: 4, fee: 0 }
     };
 
     let currentFee = 0;
