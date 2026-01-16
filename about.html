@@ -329,27 +329,126 @@
         <section class="register-section hidden-el">
             <h2 class="section-header" style="margin-bottom: 30px;">&gt;_ FAQ / SYSTEM REQUIREMENTS</h2>
 
-            <div class="about-content" style="text-align: left;">
-                <div class="info-block" style="text-align: left;">
-                    <h3>Who can enter the Matrix?</h3>
-                    <p>Open to all engineering and technology students. Whether you are a fresh [NOOB] or a seasoned
-                        [HACKER], there is a place for you.</p>
-                </div>
-                <div class="info-block" style="text-align: left;">
-                    <h3>Do I need a team?</h3>
-                    <p>Yes. You can form a squad of up to 4 members. If you are a solo operative, register individually
-                        and we may group you.</p>
-                </div>
-                <div class="info-block" style="text-align: left;">
-                    <h3>What equipment is required?</h3>
-                    <p>Bring your own laptop ("Cyber Deck"), chargers, and any specific software tools you prefer for
-                        coding and analysis.</p>
-                </div>
-                <div class="info-block" style="text-align: left;">
-                    <h3>Is food provided?</h3>
-                    <p>Yes. Fuel (Food & Snacks) will be provided to keep your energy levels high during the night
-                        operations.</p>
-                </div>
+            <div class="about-content" style="text-align: left; max-width: 900px; margin: 0 auto;">
+
+                <style>
+                    details.faq-item {
+                        background: rgba(0, 20, 0, 0.6);
+                        border: 1px solid rgba(0, 255, 65, 0.2);
+                        margin-bottom: 15px;
+                        border-radius: 4px;
+                        overflow: hidden;
+                        transition: all 0.3s ease;
+                    }
+
+                    details.faq-item[open] {
+                        border-color: var(--neon-green);
+                        background: rgba(0, 40, 0, 0.8);
+                        box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
+                    }
+
+                    summary.faq-question {
+                        padding: 15px 20px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        color: #fff;
+                        list-style: none;
+                        /* Hide default triangle */
+                        font-family: 'Share Tech Mono', monospace;
+                        font-size: 1.1rem;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+
+                    summary.faq-question::-webkit-details-marker {
+                        display: none;
+                    }
+
+                    summary.faq-question::after {
+                        content: '+';
+                        color: var(--neon-green);
+                        font-weight: bold;
+                        font-size: 1.5rem;
+                        transition: transform 0.3s;
+                    }
+
+                    details[open] summary.faq-question::after {
+                        transform: rotate(45deg);
+                    }
+
+                    .faq-answer {
+                        padding: 0 20px 20px 20px;
+                        color: #ddd;
+                        line-height: 1.6;
+                        border-top: 1px dashed rgba(0, 255, 65, 0.2);
+                        margin-top: 5px;
+                        padding-top: 15px;
+                    }
+
+                    .faq-highlight {
+                        color: var(--neon-green);
+                    }
+                </style>
+
+                <details class="faq-item">
+                    <summary class="faq-question">>> QUERY: WHO CAN ENTER THE MATRIX?</summary>
+                    <div class="faq-answer">
+                        <p>Open to all engineering and technology students. Whether you are a fresh <span
+                                class="faq-highlight">[NOOB]</span> or a seasoned <span
+                                class="faq-highlight">[HACKER]</span>, there is a place for you.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">>> QUERY: DO I NEED A TEAM?</summary>
+                    <div class="faq-answer">
+                        <p>Yes. You can form a squad of up to <span class="faq-highlight">4 members</span>. A minimum of
+                            2 members is required to initiate the protocol.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">>> QUERY: REGISTRATION FEE?</summary>
+                    <div class="faq-answer">
+                        <p>The entry fee is <span class="faq-highlight">₹ 400 per team</span>. This grants you full
+                            access to the battlefield, resources, and nutrition.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">>> QUERY: OFFLINE OR ONLINE?</summary>
+                    <div class="faq-answer">
+                        <p>This is a strictly <span class="faq-highlight">OFFLINE</span> operation. The physical
+                            location is Prathyusha Engineering College.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">>> QUERY: WHAT ABOUT ACCOMMODATION?</summary>
+                    <div class="faq-answer">
+                        <p>Rest areas will be provided for all agents during the 24-hour event. Separate operational
+                            zones for male and female agents.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">>> QUERY: IS FOOD PROVIDED?</summary>
+                    <div class="faq-answer">
+                        <p>Yes. Fuel (Food & Snacks) will be provided to keep your energy levels high during the night
+                            operations.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">>> QUERY: WILL I GET A CERTIFICATE?</summary>
+                    <div class="faq-answer">
+                        <p>Affirmative. All participating agents will receive an official <span
+                                class="faq-highlight">Certificate of Participation</span>. Winners receive Merit
+                            Certificates.</p>
+                    </div>
+                </details>
+
             </div>
         </section>
 
