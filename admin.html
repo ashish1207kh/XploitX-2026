@@ -77,7 +77,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 999;
+            z-index: 2147483647 !important;
         }
 
         @media print {
@@ -106,6 +106,98 @@
 
             th {
                 background: #ddd;
+            }
+        }
+
+        /* Login Box Interactive Styling */
+        .login-box {
+            text-align: center;
+            border: 2px solid #FF0000;
+            padding: 50px;
+            background: rgba(5, 5, 5, 0.95);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 0, 0.05);
+            position: relative;
+            width: 450px;
+            max-width: 90%;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .login-box:hover {
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4), inset 0 0 30px rgba(255, 0, 0, 0.1);
+        }
+
+        .login-title {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #FF0000;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            animation: textFlicker 3s infinite alternate;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(20, 0, 0, 0.6);
+            border: 1px solid #550000;
+            color: #FF0000;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .login-input::placeholder {
+            color: rgba(255, 0, 0, 0.4);
+        }
+
+        .login-input:focus {
+            border-color: #FF0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+            background: rgba(30, 0, 0, 0.9);
+        }
+
+        .login-btn {
+            padding: 15px 50px;
+            background: transparent;
+            color: #FF0000;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: 2px solid #FF0000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            background: #FF0000;
+            color: #000;
+            box-shadow: 0 0 30px #FF0000;
+            transform: scale(1.05);
+        }
+
+        @keyframes textFlicker {
+            0% {
+                opacity: 1;
+                text-shadow: 0 0 10px #FF0000;
+            }
+
+            50% {
+                opacity: 0.9;
+                text-shadow: 0 0 15px #FF0000;
+            }
+
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 10px #FF0000;
             }
         }
     </style>
@@ -217,16 +309,6 @@
             });
         </script>
 
-        <div id="login-overlay">
-            <div style="text-align: center; border: 1px solid #00FF41; padding: 40px; background: #000;">
-                <h2>ADMIN ACCESS</h2>
-                <input type="password" id="admin-pass" placeholder="Enter Password"
-                    style="padding: 10px; background: #000; border: 1px solid #00FF41; color: #fff;">
-                <button onclick="checkAdmin()"
-                    style="padding: 10px 20px; background: #00FF41; color: #000; font-weight: bold; border: none; cursor: pointer;">UNLOCK</button>
-            </div>
-        </div>
-
         <h1>> SYSTEM_ADMINISTRATOR_VIEW</h1>
         <div id="stats">Total Teams: Loading...</div>
 
@@ -263,6 +345,12 @@
                     loadData();
                 } else {
                     alert('ACCESS DENIED');
+                }
+            }
+
+            function handleLoginKey(event) {
+                if (event.key === 'Enter') {
+                    checkAdmin();
                 }
             }
 
@@ -322,6 +410,14 @@
             }
         </script>
     </div> <!-- End Admin Container -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 class="login-title">ADMIN ACCESS</h2>
+            <input type="password" id="admin-pass" class="login-input" placeholder="Enter Password"
+                onkeypress="handleLoginKey(event)">
+            <button onclick="checkAdmin()" class="login-btn">UNLOCK</button>
+        </div>
+    </div>
 </body>
 
 </html>
