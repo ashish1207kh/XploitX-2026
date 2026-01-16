@@ -97,8 +97,54 @@
 
 <body>
 
+    <canvas id="matrix-bg"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;"></canvas>
+
+    <script>
+        // Matrix code rain animation
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.04)'; // Darker fade for admin
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#003B00'; // Darker green for admin background effect
+            ctx.font = fontSize + 'px Share Tech Mono';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 50);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+
     <div id="login-overlay">
-        <div style="text-align: center; border: 1px solid #00FF41; padding: 40px;">
+        <div style="text-align: center; border: 1px solid #00FF41; padding: 40px; background: #000;">
             <h2>ADMIN ACCESS</h2>
             <input type="password" id="admin-pass" placeholder="Enter Password"
                 style="padding: 10px; background: #000; border: 1px solid #00FF41; color: #fff;">
@@ -119,13 +165,13 @@
             PRINT / SAVE PDF ]</button>
     </div>
 
-    <table id="teams-table">
+    <table id="teams-table" style="background: rgba(0,0,0,0.8);">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Team Name</th>
                 <th>Event</th>
-                <th>Leader (Name / Phone / WA)</th>
+                <th>Leader Details</th>
                 <th>All Members</th>
                 <th>Password</th>
             </tr>
