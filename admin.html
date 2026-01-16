@@ -204,6 +204,9 @@
 </head>
 
 <body>
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
 
     <canvas id="matrix-bg"
         style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;"></canvas>
@@ -267,6 +270,39 @@
 
     <div class="admin-container">
         <script>
+            // --- CUSTOM CURSOR ---
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorOutline = document.querySelector('.cursor-outline');
+
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
+
+                // Dot follows immediately
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
+
+                // Outline follows with slight delay (handled by CSS transition, just update pos)
+                // Using animate for smoother trailing effect if CSS transition isn't enough, 
+                // but standard CSS approach:
+                cursorOutline.style.left = `${posX}px`;
+                cursorOutline.style.top = `${posY}px`;
+            });
+
+            // Hover effects for interactive elements
+            const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, .jack-in-btn');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    document.body.classList.add('hovering');
+                });
+                el.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('hovering');
+                });
+            });
+
+            // Re-apply listeners for dynamically added elements (like in the table)
+            // A MutationObserver would be better, but we can also just add a helper function.
+
             // Matrix code rain animation (Standalone for Admin if script.js not loaded or to avoid conflicts)
             const canvas = document.getElementById('matrix-bg');
             const ctx = canvas.getContext('2d');
@@ -386,6 +422,13 @@
                     <td>${t.password}</td>
                 `;
                     tbody.appendChild(tr);
+                });
+
+                // Re-attach hover listeners for dynamic content
+                const dynamicLinks = tbody.querySelectorAll('a');
+                dynamicLinks.forEach(el => {
+                    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
                 });
             }
             function downloadCSV() {
