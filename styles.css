@@ -233,14 +233,13 @@
         /* --- HERO SECTION --- */
         .hero {
             min-height: 100vh;
-            /* changed from height: 100vh to accommodate larger header */
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             text-align: center;
-            padding-top: 650px;
-            /* Increased padding to clear fixed nav and marquee */
+            padding-top: 420px;
+            /* Force content below header */
         }
 
         .pill-badge {
@@ -248,12 +247,11 @@
             padding: 8px 20px;
             border-radius: 50px;
             background: rgba(0, 20, 0, 0.8);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 0.9rem;
             letter-spacing: 1px;
             box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
-            margin-top: 40px;
-            /* Moved down more */
+            margin-top: 20px;
         }
 
         .status-dot {
@@ -301,8 +299,8 @@
             width: 400px;
             height: auto;
             filter: drop-shadow(0 0 15px var(--neon-green));
-            margin-bottom: 30px;
-            margin-top: 60px;
+            margin-bottom: 20px;
+            margin-top: 20px;
             /* Added spacing to prevent overlap */
         }
 
@@ -414,11 +412,14 @@
         }
 
         /* Terminal Window Style */
+        /* Terminal Window Style */
         .terminal-window {
             background: rgba(5, 10, 5, 0.95);
             border: 1px solid #333;
             border-radius: 8px;
-            max-width: 600px;
+            max-width: 1100px;
+            /* Landscape Width */
+            width: 100%;
             margin: 0 auto;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
             text-align: left;
@@ -687,7 +688,7 @@
 
         .news-marquee-content {
             display: inline-block;
-            animation: marqueeScroll 20s linear infinite;
+            animation: marqueeScroll 50s linear infinite;
         }
 
         .news-marquee-content a {
@@ -761,6 +762,35 @@
                 filter: drop-shadow(0 0 15px var(--neon-green));
                 opacity: 0.9;
             }
+
+            /* Enhanced Mobile Nav Alignment */
+            .nav-bottom-row {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px !important;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .nav-links a {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+        }
+
+        /* New Nav Row Class */
+        .nav-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px 40px;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            margin-top: 15px;
         }
 
         .hero p {
@@ -871,14 +901,14 @@
         /* --- HERO SECTION --- */
         /* --- HERO SECTION --- */
         .hero-logo {
-            width: 650px;
-            /* Reduced size as requested */
+            width: 850px;
+            /* Increased size as requested */
             max-width: 90%;
             height: auto;
             filter: drop-shadow(0 0 15px var(--neon-green));
             animation: float 3s ease-in-out infinite;
-            margin-top: -20px;
-            /* Move up closer */
+            margin-top: 10px;
+            /* Optimized spacing */
         }
 
         /* Department Title in Hero */
@@ -1120,12 +1150,21 @@
         }
 
         /* Phone numbers */
-        .node-item span {
+        .node-item span,
+        .node-item a {
             display: block;
             color: #00FF41;
             /* Neon Green for numbers */
             font-size: 1.1rem;
             letter-spacing: 2px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .node-item a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-green);
+            transform: translateX(5px);
         }
 
         .node-content-wrapper .node-item {
@@ -1241,11 +1280,24 @@
             }
 
             .dept-title {
-                font-size: 1.5rem !important;
-                letter-spacing: 2px;
+                font-size: 1.1rem !important;
+                /* Smaller size to fit single line */
+                letter-spacing: 1px;
                 margin-top: 20px;
-                word-wrap: break-word;
-                /* Ensure wrapping */
+                white-space: nowrap;
+                /* Force single line if possible */
+                width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block;
+            }
+
+            /* If screen is VERY small, allow wrap but center nicely */
+            @media (max-width: 380px) {
+                .dept-title {
+                    font-size: 0.9rem !important;
+                    white-space: normal;
+                }
             }
 
             .conducts-text {
@@ -1450,4 +1502,25 @@
             }
 
 
+        }
+
+        .mission-interactive:hover {
+            background: rgba(0, 20, 0, 0.4);
+            border-color: var(--neon-green) !important;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+            transform: scale(1.02);
+        }
+
+        /* Flexbox Override for Cards Grid */
+        .cards-grid {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 30px;
+            margin-bottom: 100px;
+        }
+
+        .card {
+            flex: 1 1 300px;
+            max-width: 350px;
         }

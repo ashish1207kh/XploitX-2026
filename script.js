@@ -327,3 +327,71 @@ function startCountdown() {
 
 // Start countdown
 startCountdown();
+
+// --- LIVE CYBER SECURITY NEWS FETCH ---
+async function fetchCyberNews() {
+    // Only update the Terminal, leave Marquee as static HTML ("REGISTRATIONS STARTS SOON")
+    const terminalBody = document.querySelector('.cyber-insights .terminal-body');
+    const terminalTitle = document.querySelector('.cyber-insights .terminal-title');
+
+    // URLs
+    const rssUrl = 'https://feeds.feedburner.com/TheHackersNews';
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.status === 'ok' && data.items.length > 0) {
+
+            // UPDATE TERMINAL (Cyber Intelligence Section)
+            if (terminalBody) {
+                // Update Title
+                if (terminalTitle) terminalTitle.innerText = "root@matrix:~/live_threat_feed.log";
+
+                let terminalHtml = '';
+
+                // Show top 3 items with details
+                data.items.slice(0, 3).forEach(item => {
+                    const date = new Date(item.pubDate).toLocaleDateString();
+                    // Strip HTML from description if possible, though innerHTML is used. 
+                    // RSS2JSON returns description often with HTML. We can use it or strip it.
+                    // Let's use a simple regex to strip basic tags if it's too messy, or just trust it.
+                    // Usually description is a short snippet.
+
+                    terminalHtml += `
+                        <p style="margin-bottom: 25px; border-bottom: 1px dashed #333; padding-bottom: 15px;">
+                            <span style="color: var(--neon-green);">>> [${date}] NEW_INTEL_RECEIVED:</span><br>
+                            <a href="${item.link}" target="_blank" style="color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1rem; display: block; margin: 5px 0;">
+                                ${item.title}
+                            </a>
+                            <span style="color: #ccc; font-size: 0.9rem; display: block; margin-bottom: 8px;">
+                                ${item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : 'No details available.'}
+                            </span>
+                            <a href="${item.link}" target="_blank" style="color: #00e5ff; font-size: 0.8rem;">[ ACCESS_FULL_DATA ]</a>
+                        </p>
+                    `;
+                });
+
+                // Add a blinking cursor at the end
+                terminalHtml += `
+                    <p style="color: var(--neon-green); margin-top: 10px;">
+                        >> AWAITING_NEXT_PACKET <span class="blink">_</span>
+                    </p>
+                `;
+
+                terminalBody.innerHTML = terminalHtml;
+            }
+
+        }
+    } catch (error) {
+        console.error('Failed to fetch news:', error);
+        // Keep original terminal content on error or show error message
+    }
+}
+
+// Fetch immediately
+fetchCyberNews();
+
+// Refresh news every 10 minutes
+setInterval(fetchCyberNews, 600000);
