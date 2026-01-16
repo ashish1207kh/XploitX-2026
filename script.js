@@ -36,58 +36,156 @@ setInterval(draw, 35);
 
 // Form handling
 // Form handling
+// Form handling
 const regForm = document.getElementById('team-form');
 if (regForm) {
-    // Payment Modal Elements
+    // Configuration
+    const EVENT_CONFIG = {
+        '24 Hrs Hackathon': { min: 4, max: 5, fee: 400 },
+        'paper_presentation': { min: 1, max: 4, fee: 120 },
+        'digital_forensics': { min: 1, max: 4, fee: 0 },
+        'network_defense': { min: 1, max: 4, fee: 0 }
+    };
+
+    let currentFee = 0;
+    let currentMin = 1;
+    let currentMax = 5;
+
+    // Elements
+    const eventSelect = document.getElementById('event-select');
+    const membersContainer = document.getElementById('members-container');
+    const addMemberBtn = document.getElementById('add-member-btn');
+    const removeMemberBtn = document.getElementById('remove-member-btn');
     const paymentModal = document.getElementById('payment-modal');
     const confirmBtn = document.getElementById('confirm-payment-btn');
     const cancelBtn = document.getElementById('cancel-payment-btn');
+    const amountDisplay = document.getElementById('payment-amount-display');
+
+    // Initialize
+    function init() {
+        if (eventSelect.value) {
+            handleEventChange();
+        } else {
+            // Default state
+            updateButtons();
+        }
+    }
+
+    // Event Change Handler
+    eventSelect.addEventListener('change', handleEventChange);
+
+    function handleEventChange() {
+        const evt = eventSelect.value;
+        const config = EVENT_CONFIG[evt];
+
+        if (!config) return;
+
+        currentMin = config.min;
+        currentMax = config.max;
+        currentFee = config.fee;
+
+        // Update UI
+        updateFeeDisplay();
+        enforceTeamSize();
+        updateButtons();
+    }
+
+    function updateFeeDisplay() {
+        if (amountDisplay) {
+            amountDisplay.innerText = `AMOUNT: ₹ ${currentFee}.00`;
+        }
+    }
+
+    // Add Member Handler
+    addMemberBtn.addEventListener('click', () => {
+        const currentCount = membersContainer.querySelectorAll('.member-card').length;
+        if (currentCount < currentMax) {
+            addMemberCard(currentCount + 1);
+            updateButtons();
+        }
+    });
+
+    // Remove Member Handler
+    removeMemberBtn.addEventListener('click', () => {
+        const currentCount = membersContainer.querySelectorAll('.member-card').length;
+        if (currentCount > currentMin) {
+            membersContainer.lastElementChild.remove();
+            updateButtons();
+        }
+    });
+
+    function addMemberCard(index) {
+        const div = document.createElement('div');
+        div.className = 'member-card';
+        div.id = `member-${index}`;
+        div.innerHTML = `
+            <h4 style="color: #fff; margin-bottom: 15px;">> OPERATIVE_0${index}</h4>
+            <div class="grid-2">
+                <div class="form-group"><label>FULL NAME</label><input type="text" name="member${index}_name" required></div>
+                <div class="form-group"><label>AGE</label><input type="number" name="member${index}_age" required></div>
+                <div class="form-group"><label>EMAIL ID</label><input type="email" name="member${index}_email" required></div>
+                <div class="form-group"><label>PHONE NUMBER</label><input type="tel" name="member${index}_phone" required></div>
+                <div class="form-group"><label>WHATSAPP NUMBER</label><input type="tel" name="member${index}_whatsapp" required></div>
+                <div class="form-group"><label>COLLEGE NAME</label><input type="text" name="member${index}_college" required></div>
+                <div class="form-group"><label>RESIDENTIAL ADDRESS</label><input type="text" name="member${index}_address" required></div>
+            </div>
+        `;
+        membersContainer.appendChild(div);
+    }
+
+    function enforceTeamSize() {
+        const cards = membersContainer.querySelectorAll('.member-card');
+        const currentCount = cards.length;
+
+        // Add if below min
+        if (currentCount < currentMin) {
+            for (let i = currentCount + 1; i <= currentMin; i++) {
+                addMemberCard(i);
+            }
+        }
+        // Remove if above max (optional, but good for consistency)
+        else if (currentCount > currentMax) {
+            for (let i = currentCount; i > currentMax; i--) {
+                membersContainer.lastElementChild.remove();
+            }
+        }
+    }
+
+    function updateButtons() {
+        const currentCount = membersContainer.querySelectorAll('.member-card').length;
+        addMemberBtn.disabled = currentCount >= currentMax;
+        addMemberBtn.style.opacity = currentCount >= currentMax ? '0.5' : '1';
+
+        removeMemberBtn.disabled = currentCount <= currentMin;
+        removeMemberBtn.style.opacity = currentCount <= currentMin ? '0.5' : '1';
+    }
+
+    // Helper: Local Password Generator
+    function generatePassword() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@!";
+        let pass = "";
+        for (let i = 0; i < 8; i++) {
+            pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return pass;
+    }
 
     // Registration Handler
     regForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        // Get Event Type
-        const eventSelect = document.getElementById('event-select');
-        const selectedEvent = eventSelect ? eventSelect.value : '';
-
-        // Calculate Fee based on Event
-        let fee = 400; // Default (Hackathon)
-        if (selectedEvent === 'paper_presentation') {
-            fee = 120;
-        } else if (selectedEvent === 'digital_forensics' || selectedEvent === 'network_defense') {
-            fee = 0;
-        }
-
-        // Free Events Logic
-        if (fee === 0) {
-            // Direct Registration for Free Events
+        if (currentFee === 0) {
             registerUser(0, "FREE_ENTRY_" + Math.floor(Math.random() * 10000));
         } else {
-            // Paid Events - Show Modal
-            // Update Modal Display
-            const amountDisplay = document.getElementById('payment-amount-display');
-            if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ ${fee}.00`;
-
-            // Allow payment handler to know the amount
-            startPaymentProcess(fee);
-
             paymentModal.style.display = 'flex';
         }
     });
-
-    // Helper to start payment process logic
-    let currentFee = 400; // global-ish context for the confirm click
-    function startPaymentProcess(amount) {
-        currentFee = amount;
-    }
 
     // Payment Confirmation
     confirmBtn.addEventListener('click', function () {
         confirmBtn.innerHTML = "[ PROCESSING... ]";
         confirmBtn.disabled = true;
 
-        // Use Real API
         fetch('/api/payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -95,44 +193,32 @@ if (regForm) {
         })
             .then(response => response.json())
             .then(result => {
-                if (result.success || true) { // Mock payment always success for now or check result
-                    // Generate a mock txn ID if backend doesn't return one (our backend mock payment endpoint isn't fully defined yet but let's assume client generates or server does. Server schema expects txnId. Let's send a mock one or use server's.)
-                    // Actually, let's just make up a Txn ID here as before, or assume the backend handles it. 
-                    // My server.js expects 'transactionId' in the body.
-                    const mockTxnId = "TXN_" + Math.floor(Math.random() * 1000000);
-                    registerUser(currentFee, mockTxnId);
-                } else {
-                    throw new Error("Payment declined");
-                }
+                // Generate Mock TXN if needed
+                const mockTxnId = "TXN_" + Math.floor(Math.random() * 1000000);
+                registerUser(currentFee, mockTxnId);
             })
             .catch(err => {
-                // Fallback for demo if server payment route missing
                 console.warn("Payment API failed, using mock:", err);
                 const mockTxnId = "TXN_MOCK_" + Math.floor(Math.random() * 1000000);
                 registerUser(currentFee, mockTxnId);
             });
     });
 
-    // Helper to register user
+    // Register User Function
     function registerUser(amountVal, txnId) {
-        // Collect Member Data
         const members = [];
         const memberCards = document.querySelectorAll('.member-card');
 
-        memberCards.forEach((card, index) => {
-            const i = index + 1; // 1-based index in inputs
-            // Try to find inputs within the card
-            // Note: inputs might be named member1_name, member2_name etc.
-            // But we can just querySelector inside the card
-            const nameInput = card.querySelector(`input[name^="member"][name$="_name"]`);
-            const ageInput = card.querySelector(`input[name^="member"][name$="_age"]`);
-            const emailInput = card.querySelector(`input[name^="member"][name$="_email"]`);
-            const phoneInput = card.querySelector(`input[name^="member"][name$="_phone"]`);
-            const whatsappInput = card.querySelector(`input[name^="member"][name$="_whatsapp"]`);
-            const collegeInput = card.querySelector(`input[name^="member"][name$="_college"]`);
-            const addressInput = card.querySelector(`input[name^="member"][name$="_address"]`);
+        memberCards.forEach((card) => {
+            const nameInput = card.querySelector(`input[name$="_name"]`);
+            const ageInput = card.querySelector(`input[name$="_age"]`);
+            const emailInput = card.querySelector(`input[name$="_email"]`);
+            const phoneInput = card.querySelector(`input[name$="_phone"]`);
+            const whatsappInput = card.querySelector(`input[name$="_whatsapp"]`);
+            const collegeInput = card.querySelector(`input[name$="_college"]`);
+            const addressInput = card.querySelector(`input[name$="_address"]`);
 
-            if (nameInput) {
+            if (nameInput && nameInput.value) {
                 members.push({
                     name: nameInput.value,
                     age: ageInput ? ageInput.value : 0,
@@ -145,30 +231,20 @@ if (regForm) {
             }
         });
 
-        // Team Details
         const teamInput = document.getElementById('team-name');
         const teamVal = teamInput ? teamInput.value : 'Unknown Team';
-
-        // Team Password (from the register page input?)
-        // Wait, the UI doesn't clearly show a "Team Password" input in the snippets I saw?
-        // Let's check register.html or assume we need to add one or use a default?
-        // The mock logic generated a password: `AuthMock.generatePassword()`.
-        // I will keep that logic: Auto-generate password and email it.
-        const password = AuthMock.generatePassword();
-
-        // Leader Email (Member 1)
+        const password = generatePassword(); // Use local function
         const leaderEmail = members.length > 0 ? members[0].email : 'unknown@matrix.com';
 
         const payload = {
             teamName: teamVal,
             email: leaderEmail,
             password: password,
-            event: document.getElementById('event-select').value,
+            event: eventSelect.value,
             transactionId: txnId,
             members: members
         };
 
-        // XploitXall
         fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -181,9 +257,6 @@ if (regForm) {
                     confirmBtn.innerHTML = "[ INITIATE TRANSFER ]";
                     confirmBtn.disabled = false;
                 } else {
-                    const amountMsg = amountVal > 0 ? `Paid: ₹${amountVal}` : "Fee: WAIVED (Free Event)";
-
-                    // Backend confirmed registration. Password is in the MAIL (Server Console for now).
                     alert(`REGISTRATION SUCCESSFUL!\n\nCredentials sent to LEADER'S EMAIL.\n(${leaderEmail})\n\nCheck your inbox (or Server Console) for the Password/Access Code.`);
                     window.location.href = 'login.html';
                 }
@@ -197,11 +270,14 @@ if (regForm) {
     }
 
     // Cancel Payment
-
-    // Cancel Payment
     cancelBtn.addEventListener('click', function () {
         paymentModal.style.display = 'none';
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = "[ INITIATE TRANSFER ]";
     });
+
+    // Run Init
+    init();
 }
 
 
