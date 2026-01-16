@@ -134,6 +134,7 @@ app.post('/api/auth/register', async (req, res) => {
         Best Regards,
         The Matrix Hackathon Team
         Prathyusha Engineering College
+        (AN AUTONOMOUS INSTITUTION)
         `;
 
         sendEmail(email, "MATRIX HACK: Access Credentials", emailBody);
