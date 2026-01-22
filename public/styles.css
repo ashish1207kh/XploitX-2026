@@ -1428,344 +1428,346 @@
                 padding: 8px 16px;
                 font-size: 0.9rem;
             }
+        }
 
-            /* --- WHAT TO EXPECT & WHO CAN PARTICIPATE SECTION --- */
-            .info-section {
-                padding: 60px 20px;
-                background: transparent;
+        /* --- WHAT TO EXPECT & WHO CAN PARTICIPATE SECTION --- */
+        .info-section {
+            padding: 60px 20px;
+            background: transparent;
 
-            }
+        }
 
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+
+        }
+
+        .info-card {
+            background: #050505;
+            border: 1px solid #111;
+            border-radius: 16px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        }
+
+        .info-card h2 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: 1px;
+
+        }
+
+        /* Green Card Styling */
+        .info-card.green-card {
+            border-color: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.05);
+
+        }
+
+        .info-card.green-card:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 65, 0.5);
+
+        }
+
+        .highlight-green {
+            color: var(--neon-green);
+        }
+
+        /* Blue Card Styling */
+        .info-card.blue-card {
+            border-color: rgba(0, 229, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.05);
+        }
+
+        .info-card.blue-card:hover {
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: rgba(0, 229, 255, 0.5);
+        }
+
+        .highlight-blue {
+            color: #00e5ff;
+        }
+
+        /* List Styling */
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: center;
+            background: #0a0a0a;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid #1a1a1a;
+            transition: 0.2s;
+        }
+
+        .info-list li:hover {
+            background: #111;
+            border-color: #333;
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        .green-icon {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .blue-icon {
+            background: rgba(0, 229, 255, 0.1);
+            color: #00e5ff;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+        }
+
+        .text-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-box strong {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            font-family: 'Share Tech Mono', monospace;
+
+        }
+
+        /* Mobile Adjust */
+        @media (max-width: 768px) {
             .info-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                gap: 40px;
-                max-width: 1200px;
-                margin: 0 auto;
+                grid-template-columns: 1fr;
 
             }
 
             .info-card {
-                background: #050505;
-                border: 1px solid #111;
-                border-radius: 16px;
-                padding: 40px;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-                overflow: hidden;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                padding: 25px;
 
             }
 
-            .info-card h2 {
-                font-size: 2rem;
-                color: #fff;
-                margin-bottom: 30px;
-                font-weight: 700;
-                letter-spacing: 1px;
 
+        }
+
+        .mission-interactive:hover {
+            background: rgba(0, 20, 0, 0.4);
+            border-color: var(--neon-green) !important;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+            transform: scale(1.02);
+        }
+
+        /* Flexbox Override for Cards Grid */
+        .cards-grid {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 30px;
+            margin-bottom: 100px;
+        }
+
+        .card {
+            flex: 1 1 300px;
+            max-width: 350px;
+        }
+
+        /* REGISTER BADGE */
+        .register-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            animation: bounce 2s infinite;
+        }
+
+        .register-badge a {
+            display: inline-block;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: none;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .register-badge a:hover {
+            background: var(--neon-green);
+            color: black;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.8);
+            transform: scale(1.1);
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
             }
 
-            /* Green Card Styling */
-            .info-card.green-card {
-                border-color: rgba(0, 255, 65, 0.2);
-                box-shadow: 0 0 20px rgba(0, 255, 65, 0.05);
-
+            40% {
+                transform: translateY(-10px);
             }
 
-            .info-card.green-card:hover {
-                box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+            60% {
                 transform: translateY(-5px);
-                border-color: rgba(0, 255, 65, 0.5);
-
             }
+        }
 
-            .highlight-green {
-                color: var(--neon-green);
-            }
+        /* CYBER FEE BADGE - HUD STYLE */
+        .cyber-fee-badge {
+            position: relative;
+            display: inline-block;
+            padding: 15px 40px;
+            margin-bottom: 30px;
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px solid var(--neon-green);
+            color: #ffcc00;
+            /* Cyber Yellow */
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2), inset 0 0 20px rgba(0, 255, 65, 0.1);
+            transition: all 0.3s ease;
+            cursor: default;
+            overflow: hidden;
+        }
 
-            /* Blue Card Styling */
-            .info-card.blue-card {
-                border-color: rgba(0, 229, 255, 0.2);
-                box-shadow: 0 0 20px rgba(0, 229, 255, 0.05);
-            }
+        /* Internal Glow Line */
+        .cyber-fee-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 204, 0, 0.4), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s;
+            animation: shine 4s infinite;
+        }
 
-            .info-card.blue-card:hover {
-                box-shadow: 0 0 30px rgba(0, 229, 255, 0.1);
-                transform: translateY(-5px);
-                border-color: rgba(0, 229, 255, 0.5);
-            }
-
-            .highlight-blue {
-                color: #00e5ff;
-            }
-
-            /* List Styling */
-            .info-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .info-list li {
-                display: flex;
-                align-items: center;
-                background: #0a0a0a;
-                padding: 15px 20px;
-                border-radius: 12px;
-                border: 1px solid #1a1a1a;
-                transition: 0.2s;
-            }
-
-            .info-list li:hover {
-                background: #111;
-                border-color: #333;
-            }
-
-            .icon-box {
-                width: 50px;
-                height: 50px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-right: 20px;
-                flex-shrink: 0;
-                font-size: 1.2rem;
-            }
-
-            .green-icon {
-                background: rgba(0, 255, 65, 0.1);
-                color: var(--neon-green);
-                border: 1px solid rgba(0, 255, 65, 0.2);
-            }
-
-            .blue-icon {
-                background: rgba(0, 229, 255, 0.1);
-                color: #00e5ff;
-                border: 1px solid rgba(0, 229, 255, 0.2);
-            }
-
-            .text-box {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .text-box strong {
-                color: #b0b0b0;
-                font-size: 0.9rem;
-                font-family: 'Share Tech Mono', monospace;
-
-            }
-
-            /* Mobile Adjust */
-            @media (max-width: 768px) {
-                .info-grid {
-                    grid-template-columns: 1fr;
-
-                }
-
-                .info-card {
-                    padding: 25px;
-
-                }
-
-
-            }
-
-            .mission-interactive:hover {
-                background: rgba(0, 20, 0, 0.4);
-                border-color: var(--neon-green) !important;
-                box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
-                transform: scale(1.02);
-            }
-
-            /* Flexbox Override for Cards Grid */
-            .cards-grid {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                justify-content: center !important;
-                gap: 30px;
-                margin-bottom: 100px;
-            }
-
-            .card {
-                flex: 1 1 300px;
-                max-width: 350px;
-            }
-
-            /* REGISTER BADGE */
-            .register-badge {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                z-index: 9999;
-                animation: bounce 2s infinite;
-            }
-
-            .register-badge a {
-                display: inline-block;
-                padding: 15px 30px;
-                background: rgba(0, 0, 0, 0.9);
-                border: 2px solid var(--neon-green);
-                color: var(--neon-green);
-                font-family: 'Share Tech Mono', monospace;
-                font-size: 1.2rem;
-                font-weight: bold;
-                text-transform: uppercase;
-                text-decoration: none;
-                letter-spacing: 2px;
-                box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
-                transition: all 0.3s ease;
-                border-radius: 4px;
-            }
-
-            .register-badge a:hover {
-                background: var(--neon-green);
-                color: black;
-                box-shadow: 0 0 30px rgba(0, 255, 65, 0.8);
-                transform: scale(1.1);
-            }
-
-            @keyframes bounce {
-
-                0%,
-                20%,
-                50%,
-                80%,
-                100% {
-                    transform: translateY(0);
-                }
-
-                40% {
-                    transform: translateY(-10px);
-                }
-
-                60% {
-                    transform: translateY(-5px);
-                }
-            }
-
-            /* CYBER FEE BADGE - HUD STYLE */
-            .cyber-fee-badge {
-                position: relative;
-                display: inline-block;
-                padding: 15px 40px;
-                margin-bottom: 30px;
-                background: rgba(0, 20, 0, 0.8);
-                border: 1px solid var(--neon-green);
-                color: #ffcc00;
-                /* Cyber Yellow */
-                font-family: 'Share Tech Mono', monospace;
-                font-size: 1.3rem;
-                font-weight: bold;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-                box-shadow: 0 0 15px rgba(0, 255, 65, 0.2), inset 0 0 20px rgba(0, 255, 65, 0.1);
-                transition: all 0.3s ease;
-                cursor: default;
-                overflow: hidden;
-            }
-
-            /* Internal Glow Line */
-            .cyber-fee-badge::before {
-                content: '';
-                position: absolute;
-                top: 0;
+        @keyframes shine {
+            0% {
                 left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 204, 0, 0.4), transparent);
-                transform: skewX(-20deg);
-                transition: left 0.5s;
-                animation: shine 4s infinite;
             }
 
-            @keyframes shine {
-                0% {
-                    left: -100%;
-                }
-
-                20% {
-                    left: 200%;
-                }
-
-                100% {
-                    left: 200%;
-                }
+            20% {
+                left: 200%;
             }
 
-            /* Hover Effects */
-            .cyber-fee-badge:hover {
-                background: rgba(0, 40, 0, 0.9);
-                color: #fff;
-                text-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00;
-                box-shadow: 0 0 25px rgba(255, 204, 0, 0.4), inset 0 0 30px rgba(0, 255, 65, 0.2);
-                transform: scale(1.05) translateY(-2px);
-                border-color: #ffcc00;
+            100% {
+                left: 200%;
+            }
+        }
+
+        /* Hover Effects */
+        .cyber-fee-badge:hover {
+            background: rgba(0, 40, 0, 0.9);
+            color: #fff;
+            text-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00;
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.4), inset 0 0 30px rgba(0, 255, 65, 0.2);
+            transform: scale(1.05) translateY(-2px);
+            border-color: #ffcc00;
+        }
+
+        /* Glitch Animation for the Text Span */
+        .cyber-glitch-text {
+            position: relative;
+            display: inline-block;
+        }
+
+        .cyber-fee-badge:hover .cyber-glitch-text {
+            animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                transform: translate(0)
             }
 
-            /* Glitch Animation for the Text Span */
-            .cyber-glitch-text {
-                position: relative;
-                display: inline-block;
+            20% {
+                transform: translate(-2px, 2px)
             }
 
-            .cyber-fee-badge:hover .cyber-glitch-text {
-                animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            40% {
+                transform: translate(-2px, -2px)
             }
 
-            @keyframes glitch-anim {
-                0% {
-                    transform: translate(0)
-                }
-
-                20% {
-                    transform: translate(-2px, 2px)
-                }
-
-                40% {
-                    transform: translate(-2px, -2px)
-                }
-
-                60% {
-                    transform: translate(2px, 2px)
-                }
-
-                80% {
-                    transform: translate(2px, -2px)
-                }
-
-                100% {
-                    transform: translate(0)
-                }
+            60% {
+                transform: translate(2px, 2px)
             }
 
-            /* Status Icon Pulse */
-            .fee-icon {
-                color: var(--neon-green);
-                margin-right: 10px;
-                animation: pulse-icon 1.5s infinite;
+            80% {
+                transform: translate(2px, -2px)
             }
 
-            @keyframes pulse-icon {
-                0% {
-                    opacity: 0.5;
-                    text-shadow: 0 0 0 var(--neon-green);
-                }
-
-                50% {
-                    opacity: 1;
-                    text-shadow: 0 0 10px var(--neon-green);
-                }
-
-                100% {
-                    opacity: 0.5;
-                    text-shadow: 0 0 0 var(--neon-green);
-                }
+            100% {
+                transform: translate(0)
             }
+        }
+
+        /* Status Icon Pulse */
+        .fee-icon {
+            color: var(--neon-green);
+            margin-right: 10px;
+            animation: pulse-icon 1.5s infinite;
+
+        }
+
+        @keyframes pulse-icon {
+            0% {
+                opacity: 0.8;
+                text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            }
+
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 15px white;
+            }
+
+            100% {
+                opacity: 0.8;
+                text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            }
+        }
