@@ -33,18 +33,15 @@ function draw() {
 }
 
 setInterval(draw, 35);
-
-// Form handling
-// Form handling
 // Form handling
 const regForm = document.getElementById('team-form');
 if (regForm) {
     // Configuration
     const EVENT_CONFIG = {
-        '24 Hrs Hackathon': { min: 4, max: 5, fee: 250, perHead: true },
-        'paper_presentation': { min: 2, max: 4, fee: 250, perHead: true },
-        'digital_forensics': { min: 2, max: 4, fee: 250, perHead: true },
-        'network_defense': { min: 2, max: 4, fee: 250, perHead: true }
+        '24 Hrs Hackathon': { min: 4, max: 4, fee: 250, perHead: true },
+        'paper_presentation': { min: 3, max: 3, fee: 120, perHead: false },
+        'digital_forensics': { min: 2, max: 3, fee: 0, perHead: false },
+        'network_defense': { min: 2, max: 3, fee: 0, perHead: false }
     };
 
     let currentFee = 0;
@@ -506,4 +503,219 @@ async function fetchCyberNews() {
 fetchCyberNews();
 
 // Refresh news every 10 minutes
+// Refresh news every 10 minutes
 setInterval(fetchCyberNews, 600000);
+
+/* --- NEW FEATURES IMPLEMENTATION --- */
+
+/* 1. INTERACTIVE HACKER TERMINAL */
+document.addEventListener('DOMContentLoaded', () => {
+    const terminalOverlay = document.getElementById('hacker-terminal');
+    const terminalInput = document.getElementById('terminal-input');
+    const terminalOutput = document.getElementById('terminal-output');
+
+    // Toggle Terminal with `~` key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '`' || e.key === '~') {
+            e.preventDefault();
+            if (terminalOverlay.style.display === 'block') {
+                terminalOverlay.style.display = 'none';
+            } else {
+                terminalOverlay.style.display = 'block';
+                terminalInput.focus();
+            }
+        }
+    });
+
+    // Command Parser
+    if (terminalInput) {
+        terminalInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim().toLowerCase();
+                this.value = ''; // Clear input
+                processCommand(command);
+            }
+        });
+    }
+
+    function processCommand(cmd) {
+        printOutput(`guest@xploitx:~$ ${cmd}`);
+
+        switch (cmd) {
+            case 'help':
+                printOutput("AVAILABLE COMMANDS:\n  help     - Show this list\n  clear    - Clear terminal\n  hack     - Initiate breach protocol\n  team     - List organizing nodes\n  exit     - Close terminal\n  flag     - Submit a flag (Usage: flag {YOUR_FLAG})");
+                break;
+            case 'clear':
+                terminalOutput.innerHTML = '';
+                break;
+            case 'exit':
+                terminalOverlay.style.display = 'none';
+                break;
+            case 'team':
+                printOutput("ORGANIZING NODES:\n  - N Ashish (Admin)\n  - N Madhumitha (Admin)\n  - Dr. M D Boomija (HOD)");
+                break;
+            case 'hack':
+                simulateHacking();
+                break;
+            default:
+                if (cmd.startsWith('flag ')) {
+                    const submittedFlag = cmd.substring(5).trim();
+                    if (submittedFlag === '{XPL0ITX_M4ST3R_HACK3R}') {
+                        printOutput("ACCESS GRANTED. YOU ARE TRULY ONE OF US.", "#00E5FF");
+                    } else {
+                        printOutput("ACCESS DENIED. INCORRECT FLAG.", "red");
+                    }
+                } else {
+                    printOutput(`Command not found: ${cmd}. Type 'help' for assistance.`, "red");
+                }
+        }
+    }
+
+    function printOutput(text, color = "var(--neon-green)") {
+        const div = document.createElement('div');
+        div.style.color = color;
+        div.textContent = text;
+        terminalOutput.appendChild(div);
+        // Scroll to bottom
+        terminalOverlay.scrollTop = terminalOverlay.scrollHeight;
+    }
+
+    function simulateHacking() {
+        const hacks = [
+            "Initiating SSH connection...",
+            "Bypassing firewall...",
+            "Accessing mainframe...",
+            "Decrypting hashes...",
+            "Downloading sensitive data...",
+            "BREACH SUCCESSFUL."
+        ];
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < hacks.length) {
+                printOutput(hacks[i]);
+                i++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 600);
+    }
+});
+
+/* 2. TYPEWRITER EFFECT */
+function typeWriter(element, text, speed = 50) {
+    if (!element) return;
+    element.innerHTML = '';
+    let i = 0;
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+    type();
+}
+
+// Apply to Hero Title
+window.addEventListener('load', () => {
+    const heroTitle = document.querySelector('.glitch-title'); // "SYSTEM BREACH DETECTED"
+    if (heroTitle) {
+        const originalText = heroTitle.innerText.replace(/\n/g, ' '); // Simple cleanup
+        // We might want to keep the <br> structure, but for simple typewriter text is easier.
+        // Let's just type the specific text "SYSTEM BREACH DETECTED"
+        // Or if it's the index page:
+        if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+            // Let's re-type the main header specifically or just leave it glitching. 
+            // The user asked for typewriter effect. Let's apply it to a specific sub-header or the main one.
+            // Let's try the sub-header "Join the Ultimate Cybersecurity Challenge"
+            const subHeader = document.querySelector('p[style*="font-size: 1.2rem"]'); // Targeting the tagline we added
+            if (subHeader) {
+                const content = subHeader.innerText; // "Join the Ultimate..."
+                // preserve HTML if possible? Hard with typewriter. 
+                // Let's just create a new dynamic element for effect.
+                const dynamicArea = document.createElement('div');
+                dynamicArea.id = 'typewriter-msg';
+                dynamicArea.style.color = 'var(--neon-green)';
+                dynamicArea.style.fontFamily = 'monospace';
+                dynamicArea.style.fontSize = '1.1rem';
+                dynamicArea.style.marginTop = '10px';
+                dynamicArea.style.minHeight = '20px'; // Prevent layout shift
+
+                // Insert after hero title
+                heroTitle.parentNode.insertBefore(dynamicArea, heroTitle.nextSibling);
+
+                setTimeout(() => {
+                    typeWriter(dynamicArea, ">> INITIALIZING_SEQUENCE... SYSTEM_ONLINE", 50);
+                }, 1000);
+            }
+        }
+    }
+});
+
+/* 3. CTF CHALLENGES (CONSOLE) */
+console.log("%cSTOP! WAIT!", "color: red; font-size: 40px; font-weight: bold; text-shadow: 2px 2px black;");
+console.log("%cLooking for flags? Here is a hint: The Matrix has hidden layers. Check the HTML comments.", "color: #00FF41; font-size: 14px; background: #000; padding: 10px;");
+const HIDDEN_FLAG_VAR = "flag{C0NS0L3_L0G_EXPL0R3R}";
+
+/* 4. 3D TILT EFFECT */
+document.addEventListener('mousemove', (e) => {
+    const cards = document.querySelectorAll('.card, .node-card, .info-card');
+    cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Only trigger if mouse is close/over to save performance? 
+        // Or global subtle effect. Let's do hover-based in CSS usually, but JS allows "following".
+        // Let's check if mouse is over or near.
+        if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -10; // Max 10 deg
+            const rotateY = ((x - centerX) / centerX) * 10;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            card.style.transition = 'transform 0.1s ease';
+        } else {
+            // Reset
+            // card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            // card.style.transition = 'transform 0.5s ease';
+            // Note: CSS might override this if we don't unset inline styles or manage state.
+            // Actually, best to just let CSS :hover handle scale/reset, and we just add rotation.
+            if (card.style.transform.includes('rotate')) {
+                card.style.transform = 'none';
+                card.style.transition = 'transform 0.5s ease';
+            }
+        }
+    });
+});
+
+/* 5. MOBILE MENU TOGGLE */
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuOpen = document.getElementById('mobile-menu-open');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    if (mobileMenuOpen && mobileMenuClose && mobileNav) {
+        mobileMenuOpen.addEventListener('click', () => {
+            mobileNav.classList.add('active');
+            mobileMenuOpen.classList.add('hidden'); // Hide button when menu is open
+            document.body.style.overflow = 'hidden';
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileNav.classList.remove('active');
+            mobileMenuOpen.classList.remove('hidden'); // Show button when menu is closed
+            document.body.style.overflow = '';
+        });
+
+        const navLinks = mobileNav.querySelectorAll('a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileNav.classList.remove('active');
+                mobileMenuOpen.classList.remove('hidden');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+});

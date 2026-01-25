@@ -873,7 +873,7 @@
         /* New Nav Row Class */
         .nav-bottom-row {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
             padding: 10px 40px;
             border-top: 1px solid rgba(0, 255, 65, 0.2);
@@ -1873,4 +1873,233 @@
             100% {
                 transform: translateX(-100%);
             }
+        }
+
+        /* --- HACKER TERMINAL OVERLAY --- */
+        #hacker-terminal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(5, 5, 5, 0.95);
+            z-index: 99999;
+            padding: 40px;
+            font-family: 'Share Tech Mono', monospace;
+            overflow-y: auto;
+            display: none;
+            /* Hidden by default */
+        }
+
+        #terminal-output {
+            color: var(--neon-green);
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+            margin-bottom: 20px;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            color: var(--neon-green);
+            font-size: 1.1rem;
+        }
+
+        .terminal-prompt {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        #terminal-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            flex-grow: 1;
+            outline: none;
+            caret-color: var(--neon-green);
+        }
+
+        /* --- MOBILE RESPONSIVENESS OVERHAUL --- */
+        @media screen and (max-width: 768px) {
+
+            /* TYPOGRAPHY */
+            .glitch-title {
+                font-size: 3rem !important;
+            }
+
+            .section-header {
+                font-size: 1.8rem !important;
+                margin-bottom: 30px !important;
+            }
+
+            .header-title {
+                font-size: 1.8rem !important;
+            }
+
+            .header-subtitle {
+                font-size: 1rem !important;
+            }
+
+            .dept-title {
+                font-size: 2rem !important;
+                margin-top: 15px;
+            }
+
+            /* LOGO */
+            .logo-img {
+                height: 120px !important;
+            }
+
+            /* NAVIGATION */
+            .nav-bottom-row {
+                position: relative;
+                padding: 10px 20px !important;
+            }
+
+            .nav-links {
+                display: none;
+                /* Hidden by default on mobile */
+                flex-direction: column;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background: rgba(5, 5, 5, 0.98);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+                padding: 40px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links a {
+                font-size: 1.4rem;
+                /* Larger */
+                width: 85%;
+                text-align: center;
+                padding: 18px !important;
+                /* Larger touch target */
+                background: rgba(0, 40, 0, 0.7) !important;
+                border: 1px solid var(--neon-green) !important;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            /* Hamburger Button */
+            .menu-toggle {
+                display: block !important;
+                background: transparent;
+                border: 2px solid var(--neon-green) !important;
+                color: var(--neon-green);
+                padding: 10px 15px !important;
+                font-size: 1.5rem !important;
+                cursor: pointer;
+                z-index: 1001;
+                border-radius: 4px;
+                box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+            }
+
+            .menu-toggle.hidden {
+                display: none !important;
+            }
+
+            /* Close Button inside menu */
+            .menu-close {
+                display: block !important;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                font-size: 3rem;
+                color: var(--neon-green);
+                cursor: pointer;
+                padding: 15px;
+            }
+
+            /* LAYOUT STACKING */
+            .cards-grid,
+            .nodes-grid,
+            .grid-2,
+            .about-content,
+            .dashboard-members {
+                grid-template-columns: 1fr !important;
+                gap: 25px !important;
+            }
+
+            .hero {
+                padding-top: 35% !important;
+            }
+
+            .hero-logo-container {
+                margin: 0 auto 40px auto !important;
+            }
+
+            .hero-logo {
+                width: 420px !important;
+                max-width: 98% !important;
+                filter: drop-shadow(0 0 25px var(--neon-green)) !important;
+            }
+
+            .countdown-container {
+                gap: 15px !important;
+            }
+
+            .time-unit {
+                width: 70px !important;
+            }
+
+            .time-value {
+                font-size: 1.8rem !important;
+            }
+
+            /* TERMINAL WINDOWS */
+            .terminal-window {
+                width: 98% !important;
+                margin: 0 auto !important;
+            }
+
+            .terminal-body {
+                padding: 20px !important;
+            }
+
+            /* FORMS */
+            .register-form {
+                padding: 20px !important;
+            }
+
+            /* UTILS */
+            .container {
+                padding: 0 20px !important;
+            }
+
+            /* RESTORE SYSTEM CURSOR ON MOBILE */
+            body {
+                cursor: auto !important;
+            }
+
+            .cursor-dot,
+            .cursor-outline {
+                display: none !important;
+            }
+
+            /* ADMIN SPECIFIC */
+            .admin-container {
+                margin-top: 45% !important;
+                padding: 10px !important;
+            }
+        }
+
+        /* Base style for elements hidden on desktop but used on mobile */
+        .menu-toggle,
+        .menu-close {
+            display: none;
         }

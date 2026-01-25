@@ -256,12 +256,12 @@
 
         <!-- Bottom Row: Nav Links -->
         <div class="nav-bottom-row">
-            <div class="nav-links">
+            <button class="menu-toggle" id="mobile-menu-open"><i class="fas fa-bars"></i></button>
+            <div class="nav-links" id="mobile-nav">
+                <span class="menu-close" id="mobile-menu-close">&times;</span>
                 <a href="index.html"><i class="fas fa-home"></i> [ HOME ]</a>
                 <a href="about.html"><i class="fas fa-info-circle"></i> [ ABOUT ]</a>
                 <a href="rules.html"><i class="fas fa-gavel"></i> [ RULES ]</a>
-            </div>
-            <div class="nav-links">
                 <a href="login.html"><i class="fas fa-sign-in-alt"></i> [ LOGIN ]</a>
                 <a href="register.html"><i class="fas fa-user-plus"></i> [ REGISTER ]</a>
                 <a href="prizes.html"><i class="fas fa-trophy"></i> [ PRIZES ]</a>
@@ -564,6 +564,7 @@
             <button onclick="checkAdmin()" class="login-btn">UNLOCK</button>
         </div>
     </div>
+    <script src="script.js"></script>
 </body>
 
 </html>

@@ -63,14 +63,13 @@
         <!-- Middle Row: Logo Strip REMOVED -->
 
         <!-- Bottom Row: Nav Links (Original Navigation) -->
-        <div
-            style="display: flex; justify-content: space-between; width: 100%; padding: 10px 40px; border-top: 1px solid rgba(0, 255, 65, 0.2); margin-top: 15px;">
-            <div class="nav-links">
+        <div class="nav-bottom-row">
+            <button class="menu-toggle" id="mobile-menu-open"><i class="fas fa-bars"></i></button>
+            <div class="nav-links" id="mobile-nav">
+                <span class="menu-close" id="mobile-menu-close">&times;</span>
                 <a href="index.html"><i class="fas fa-home"></i> [ HOME ]</a>
                 <a href="rules.html"><i class="fas fa-gavel"></i> [ RULES ]</a>
-                <span style="color: var(--neon-green); margin-left: 20px;">> TEAM_DASHBOARD</span>
-            </div>
-            <div class="nav-links">
+                <span class="nav-indicator" style="color: var(--neon-green);">> TEAM_DASHBOARD</span>
                 <button onclick="logout()" class="secondary-btn" style="color: #ffcccc; border-color: #ffcccc;">[ LOGOUT
                     ]</button>
             </div>
