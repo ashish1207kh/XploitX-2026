@@ -364,9 +364,11 @@
                     <th>ID</th>
                     <th>Team Name</th>
                     <th>Event</th>
+                    <th>Status</th>
                     <th>Leader Details</th>
                     <th>All Members</th>
                     <th>Password</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -410,10 +412,17 @@
                     });
 
                     const tr = document.createElement('tr');
+
+                    const statusColor = t.status === 'CONFIRMED' ? '#00FF41' : '#FFA500';
+                    const actionBtn = t.status === 'CONFIRMED'
+                        ? '<span style="color:#00FF41">[APPROVED]</span>'
+                        : `<button onclick="approveTeam('${t.team_id}')" style="padding:5px; background: #00FF41; border:none; color:black; font-weight:bold; cursor:pointer;">[ APPROVE ]</button>`;
+
                     tr.innerHTML = `
                     <td>${t.team_id}</td>
                     <td>${t.name}</td>
                     <td>${t.event}</td>
+                    <td style="color:${statusColor}">${t.status || 'PENDING'}</td>
                     <td>
                         ${leader ? leader.name : 'N/A'}<br>
                         ${leader ? leader.phone : ''}<br>
@@ -421,6 +430,7 @@
                     </td>
                     <td class="member-list">${membersHtml}</td>
                     <td>${t.password}</td>
+                    <td>${actionBtn}</td>
                 `;
                     tbody.appendChild(tr);
                 });
@@ -438,7 +448,7 @@
 
                 window.teamsData.forEach(t => {
                     const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
-                    csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
+                    csv += `${t.team_id},"${t.name}",${t.event},${t.status || 'PENDING'},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
                 });
 
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -451,6 +461,24 @@
 
             function printPDF() {
                 window.print();
+            }
+
+            async function approveTeam(teamId) {
+                if (!confirm('Are you sure you want to approve this team? An email will be sent.')) return;
+
+                try {
+                    const res = await fetch(`/api/admin/approve-team/${teamId}`, { method: 'POST' });
+                    const result = await res.json();
+                    if (result.success) {
+                        alert(result.message);
+                        loadData();
+                    } else {
+                        alert('Error: ' + result.error);
+                    }
+                } catch (err) {
+                    alert('Request failed');
+                    console.error(err);
+                }
             }
         </script>
 

@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 const app = express();
@@ -32,8 +33,14 @@ function initDb() {
         password TEXT,
         event TEXT,
         transaction_id TEXT,
+        status TEXT DEFAULT 'PENDING',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
+
+    // Attempt to add status column if it doesn't exist (migration for existing DB)
+    db.run(`ALTER TABLE teams ADD COLUMN status TEXT DEFAULT 'PENDING'`, (err) => {
+        // Ignore error if column already exists
+    });
 
     db.run(`CREATE TABLE IF NOT EXISTS members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,16 +60,32 @@ function initDb() {
 
 // --- EMAIL CONFIGURATION ---
 const transporter = nodemailer.createTransport({
-    jsonTransport: true
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
 });
 
-async function sendEmail(to, subject, text) {
-    console.log(`\n--- [MOCK EMAIL SERVICE] ---`);
-    console.log(`To: ${to}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`Body: \n${text}`);
-    console.log(`------------------------------\n`);
-    return true;
+async function sendEmail(to, subject, html) {
+    if (!process.env.EMAIL_USER) {
+        console.log('No EMAIL_USER provided. Skipping email.');
+        return false;
+    }
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"Matrix Hackathon" <${process.env.EMAIL_USER}>`,
+            to: to,
+            subject: subject,
+            html: html
+        });
+        console.log("Message sent: %s", info.messageId);
+        return true;
+    } catch (error) {
+        console.error("Error sending email:", error);
+        return false;
+    }
 }
 
 function sendWhatsApp(number, message) {
@@ -116,36 +139,11 @@ app.post('/api/auth/register', async (req, res) => {
             );
         }
 
-        const emailBody = `
-        Dear Team Leader,
-        
-        Congratulations! Your team "${teamName}" has been successfully registered for XploitX-2026.
-        
-        Here are your secure access credentials:
-        --------------------------------------------------
-        Team ID  : ${teamIdStr}
-        Password : ${password}
-        --------------------------------------------------
-        
-        Please keep these credentials safe. You can log in to your dashboard to manage your team and event details.
-        
-        Login Portal: http://localhost:3000/login.html
-        
-        Best Regards,
-        The Matrix Hackathon Team
-        Prathyusha Engineering College
-        (AN AUTONOMOUS INSTITUTION)
-        `;
-
-        sendEmail(email, "MATRIX HACK: Access Credentials", emailBody);
-
-        if (leaderWhatsApp) {
-            const waMsg = `Welcome to MATRIX HACK! Team: ${teamName}. ID: ${teamIdStr}, Pass: ${password}. Login: http://localhost:3000`;
-            sendWhatsApp(leaderWhatsApp, waMsg);
-        }
+        // 3. Mark as PENDING (Default is PENDING, but good to be explicit or let default handle it)
+        // No email sent here.
 
         res.json({
-            message: 'Registration successful',
+            message: 'Registration successful. Pending verification.',
             teamId: teamIdStr,
             teamName: teamName
         });
@@ -192,6 +190,10 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        if (team.status !== 'CONFIRMED') {
+            return res.status(403).json({ error: 'Account pending approval by Admin.' });
+        }
+
         if (team.password === password) { // In production use bcrypt
             res.json({
                 success: true,
@@ -233,6 +235,57 @@ app.get('/api/admin/data', async (req, res) => {
         }
 
         res.json(fullData);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin Approve Team
+app.post('/api/admin/approve-team/:id', async (req, res) => {
+    const teamId = req.params.id;
+
+    try {
+        // 1. Get Team Details
+        const team = await new Promise((resolve, reject) => {
+            db.get(`SELECT * FROM teams WHERE team_id = ?`, [teamId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        if (!team) return res.status(404).json({ error: 'Team not found' });
+
+        // 2. Update Status
+        await new Promise((resolve, reject) => {
+            db.run(`UPDATE teams SET status = 'CONFIRMED' WHERE team_id = ?`, [teamId], function (err) {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        // 3. Send Email
+        const emailBody = `
+        <div style="font-family: monospace; color: #000;">
+            <h2>Registration Confirmed</h2>
+            <p>Dear Team Leader,</p>
+            <p>Congratulations! Your team <strong>"${team.name}"</strong> has been approved for XploitX-2026.</p>
+            <hr>
+            <p><strong>Team ID  :</strong> ${team.team_id}</p>
+            <p><strong>Password :</strong> ${team.password}</p>
+            <hr>
+            <p>Please keep these credentials safe. You can log in to your dashboard to manage your team and event details.</p>
+            <p><a href="http://localhost:3000/login.html">Login Portal</a></p>
+            <br>
+            <p>Best Regards,</p>
+            <p>The Matrix Hackathon Team<br>Prathyusha Engineering College<br>(AN AUTONOMOUS INSTITUTION)</p>
+        </div>
+        `;
+
+        await sendEmail(team.email, "MATRIX HACK: Registration Approved", emailBody);
+
+        res.json({ success: true, message: 'Team approved and email sent.' });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });

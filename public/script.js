@@ -290,7 +290,7 @@ if (regForm) {
                     confirmBtn.innerHTML = "[ INITIATE TRANSFER ]";
                     confirmBtn.disabled = false;
                 } else {
-                    alert(`REGISTRATION SUCCESSFUL!\n\nCredentials sent to LEADER'S EMAIL.\n(${leaderEmail})\n\nCheck your inbox (or Server Console) for the Password/Access Code.`);
+                    alert(`REGISTRATION SUCCESSFUL!\n\nYour registration is PENDING APPROVAL.\n\nYou will receive an email with your credentials once the Admin confirms your details.`);
                     window.location.href = 'login.html';
                 }
             })
