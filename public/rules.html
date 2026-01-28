@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rules - MATRIX_HACK 2026</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loader-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s;">
+        <img src="load.png" alt="Loading..."
+            style="width: 650px; max-width: 90vw; height: auto; animation: pulse 1.5s infinite;">
+    </div>
+
+    <!-- Register Badge -->
+    <div class="register-badge">
+        <a href="register.html">[ REGISTER NOW ]</a>
+    </div>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <nav
+        style="height: auto; padding: 20px 0; background: linear-gradient(to bottom, rgba(0,0,0,1), transparent); flex-direction: column;">
+
+        <!-- Top Row: College Info & logo -->
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; margin-top: 25px;">
+                <img src="PEC Logo.png" alt="PEC Logo"
+                    style="height: 155px; width: auto; filter: drop-shadow(0 0 5px var(--neon-green)); margin-top: -15px;">
+                <div style="text-align: center;">
+                    <div class="header-title"
+                        style="margin: 0; font-size: 2.5rem; letter-spacing: 3px; color: #ffffff; font-weight: 800;">
+                        PRATHYUSHA
+                        ENGINEERING COLLEGE</div>
+                    <div class="header-subtitle"
+                        style="margin-top: 5px; font-size: 1.2rem; letter-spacing: 4px; font-weight: bold; color: #fff;">
+                        (AN AUTONOMOUS INSTITUTION)</div>
+                    <div class="accreditation-text"
+                        style="margin-top: 8px; font-size: 0.9rem; opacity: 1; color: #00BFFF; font-weight: bold;">
+                        Approved by AICTE & Affiliated to Anna University, NAAC "A" Grade Accredited Institution<br>
+                        National Board of Accreditation (NBA) accredited Programmes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tag Strip (Marquee) -->
+            <div class="logo-marquee-container">
+                <div class="logo-marquee-content">
+                    <!-- Duplicated Content for Seamless Scroll -->
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                </div>
+            </div>
+        </div>
+        <!-- NEW: Moving News Strip -->
+        <div class="news-marquee-container">
+            <div class="news-marquee-content">
+                <a href="register.html">
+                    <span>REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ...
+                        REGISTRATIONS STARTS SOON ...</span>
+                </a>
+            </div>
+        </div>
+
+
+        <!-- Bottom Row: Nav Links (Original Navigation) -->
+        <div class="nav-bottom-row">
+            <button class="menu-toggle" id="mobile-menu-open"><i class="fas fa-bars"></i></button>
+            <div class="nav-links" id="mobile-nav">
+                <span class="menu-close" id="mobile-menu-close">&times;</span>
+                <a href="index.html"><i class="fas fa-home"></i> [ HOME ]</a>
+                <a href="about.html"><i class="fas fa-info-circle"></i> [ ABOUT ]</a>
+                <a href="rules.html"><i class="fas fa-gavel"></i> [ RULES ]</a>
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> [ LOGIN ]</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> [ REGISTER ]</a>
+                <a href="prizes.html"><i class="fas fa-trophy"></i> [ PRIZES ]</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero hidden-el">
+        <div class="pill-badge">
+            <span class="status-dot"></span> SYSTEM_PROTOCOLS • MATRIX_HACK 2026
+        </div>
+
+        <h1 class="glitch-title">RULES & REGULATIONS</h1>
+
+        <p>
+            Adherence to the protocol is mandatory. Deviations will result in immediate system termination.
+        </p>
+    </section>
+
+    <div class="container">
+
+        <!-- GENERAL CONDUCT -->
+        <section>
+            <h2 class="section-header">[ GENERAL CODE OF CONDUCT ]</h2>
+            <div class="terminal-window" style="max-width: 900px; margin: 0 auto; margin-bottom: 0;">
+                <div class="terminal-bar">
+                    <div class="dots">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <div class="terminal-title">admin@matrix:~/conduct_rules.txt</div>
+                </div>
+                <div class="terminal-body" style="text-align: justify; padding: 30px;">
+                    <ul class="rules-list" style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 10px;">
+                            <strong style="color: var(--neon-green); font-size: 1.1rem;">> 01. ELIGIBILITY</strong>
+                            <p style="color: #ddd; margin-top: 5px;">All team members must be currently enrolled
+                                students. Inter-college teams are permitted.</p>
+                        </li>
+                        <li style="margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 10px;">
+                            <strong style="color: var(--neon-green); font-size: 1.1rem;">> 02. TEAM COMPOSITION</strong>
+                            <p style="color: #ddd; margin-top: 5px;">Teams must adhere to the size restraints of their
+                                respective events (Mini: 2, Max: 4 or 5 depending on event).</p>
+                        </li>
+                        <li style="margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 10px;">
+                            <strong style="color: var(--neon-green); font-size: 1.1rem;">> 03. EQUIPMENT</strong>
+                            <p style="color: #ddd; margin-top: 5px;">Bring your own laptops, chargers, and any specific
+                                hardware you might need. Wi-Fi will be provided.</p>
+                        </li>
+                        <li style="margin-bottom: 0;">
+                            <strong style="color: red; font-size: 1.1rem;">> 04. ZERO TOLERANCE POLICY</strong>
+                            <p style="color: #ddd; margin-top: 5px;">Harassment, discrimination, or cheating/plagiarism
+                                will lead to immediate disqualification and removal from the premises.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- HACKATHON SPECIFIC -->
+        <section class="hidden-el">
+            <h2 class="section-header">[ HACKATHON PROTOCOLS ]</h2>
+            <div class="cards-grid">
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-code"></i></span>
+                    <h3>FRESH CODE</h3>
+                    <p>All code must be written during the event. Libraries and frameworks are allowed, but the core
+                        logic must be original.</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-share-alt"></i></span>
+                    <h3>SUBMISSION</h3>
+                    <p>Projects must be submitted to the designated repository before the countdown hits zero. Late
+                        submissions will be rejected.</p>
+                </div>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-chalkboard-teacher"></i></span>
+                    <h3>DEMO</h3>
+                    <p>Teams must be prepared to demo their hack to the judges. The demo should be functional and live.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+
+    </div>
+
+    <!-- Sponsors Section (Moved) -->
+    <section class="info-section hidden-el" style="margin-top: 40px; margin-bottom: 40px;">
+        <div class="container" style="text-align: center;">
+            <h2 class="section-header">[ PARTNERS IN CRIME ]</h2>
+            <p
+                style="color: #ccc; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto; text-align: justify;">
+                We are looking for visionary partners to join forces in this cybersecurity revolution. By sponsoring
+                <span class="text-green">XPLOITX 2026</span>, you gain direct access to the next generation of <span
+                    class="text-cyan">cyber-defenders</span> and <span class="text-pink">innovators</span>. Showcase
+                your brand, recruit top talent, and demonstrate your commitment to a secure digital future.
+            </p>
+
+            <div style="margin-bottom: 40px;">
+                <span
+                    style="display: inline-block; padding: 20px; border: 1px dashed var(--neon-green); border-radius: 8px; color: #666;">
+                    [ SPONSOR LOGO PLACEHOLDERS ]
+                </span>
+            </div>
+
+            <div
+                style="background: rgba(0, 20, 0, 0.6); padding: 30px; border-radius: 10px; border: 1px solid var(--neon-green); display: inline-block; max-width: 600px;">
+                <h3 class="text-yellow" style="margin-bottom: 15px;">BECOME A SPONSOR</h3>
+                <p style="margin-bottom: 20px; color: #eee; text-align: justify;">
+                    Partner with us to amplify your impact. Download our sponsorship brochure to explore the various
+                    tiers and benefits available for your organization.
+                </p>
+                <a href="sponsors.pdf" target="_blank" class="cta-btn" style="font-size: 1rem;"><i
+                        class="fas fa-file-pdf"></i> [ VIEW SPONSOR BROCHURE ]</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Organizing Nodes Section (Coordinators) -->
+    <footer class="organizing-nodes-section">
+        <h2 class="nodes-header">>_ ORGANIZING NODES</h2>
+        <p class="nodes-subtitle">Meet the architects of the simulation</p>
+
+        <div class="nodes-grid">
+            <!-- Card 1: Event Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">EVENT HEADS</div>
+                    <span class="node-role-label">System Administrators</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>N Ashish</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+918122079494">+91 8122079494</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>N Madhumitha Narayanan</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+917305456171">+91 7305456171</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>N Nirmal Raj</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+919150985783">+91 9150985783</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>R Divya Dharshini</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+917092729115">+91 7092729115</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 2: Staff Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-id-card-alt"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">STAFF COORDS</div>
+                    <span class="node-role-label">Cyber Security Department</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Dr. M D Boomija</strong>
+                            <span class="node-role-sublabel">HOD</span>
+                            <a href="tel:+917358028970">+91 7358028970</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>Mrs. Anithalakshmi</strong>
+                            <span class="node-role-sublabel">Assistant Professor</span>
+                            <a href="tel:+919840268454">+91 9840268454</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 3: Quick Links -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-link"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">QUICK LINKS</div>
+                    <span class="node-role-label">System Navigation</span>
+
+                    <ul class="node-list">
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="index.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-home"></i> [ HOME ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="about.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-info-circle"></i> [ ABOUT ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="rules.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-gavel"></i> [ RULES ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="prizes.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-trophy"></i> [ PRIZES ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="register.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-user-plus"></i> [ REGISTER ]</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-copyright">
+            <div>&copy; 2026 MATRIX_HACK • All systems operational</div>
+            <div style="margin-top: 5px; font-style: italic;">"Free your mind." - Morpheus</div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

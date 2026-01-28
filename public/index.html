@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XploitX-2026</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loader-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s;">
+        <img src="load.png" alt="Loading..."
+            style="width: 650px; max-width: 90vw; height: auto; animation: pulse 1.5s infinite;">
+    </div>
+
+    <!-- Register Badge -->
+    <div class="register-badge">
+        <a href="register.html">[ REGISTER NOW ]</a>
+    </div>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <nav
+        style="height: auto; padding: 20px 0; background: linear-gradient(to bottom, rgba(0,0,0,1), transparent); flex-direction: column;">
+
+        <!-- Top Row: College Info & logo -->
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; margin-top: 25px;">
+                <img src="PEC Logo.png" alt="PEC Logo"
+                    style="height: 155px; width: auto; filter: drop-shadow(0 0 5px var(--neon-green)); margin-top: -15px;">
+                <div style="text-align: center;">
+                    <div class="header-title"
+                        style="margin: 0; font-size: 2.5rem; letter-spacing: 3px; color: #ffffff; font-weight: 800;">
+                        PRATHYUSHA
+                        ENGINEERING COLLEGE</div>
+                    <div class="header-subtitle"
+                        style="margin-top: 5px; font-size: 1.2rem; letter-spacing: 4px; font-weight: bold; color: #fff;">
+                        (AN AUTONOMOUS INSTITUTION)</div>
+                    <div class="accreditation-text"
+                        style="margin-top: 8px; font-size: 0.9rem; opacity: 1; color: #00BFFF; font-weight: bold;">
+                        Approved by AICTE & Affiliated to Anna University, NAAC "A" Grade Accredited Institution<br>
+                        National Board of Accreditation (NBA) accredited Programmes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tag Strip (Marquee) -->
+            <div class="logo-marquee-container">
+                <div class="logo-marquee-content">
+                    <!-- Duplicated Content for Seamless Scroll -->
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                    <img src="tag.png" alt="Accreditation Logos">
+                </div>
+            </div>
+        </div>
+        <!-- NEW: Moving News Strip -->
+        <div class="news-marquee-container">
+            <div class="news-marquee-content">
+                <a href="register.html">
+                    <span>REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ... REGISTRATIONS STARTS SOON ...
+                        REGISTRATIONS STARTS SOON ...</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Nav Links (Original Navigation) -->
+        <div class="nav-bottom-row">
+            <button class="menu-toggle" id="mobile-menu-open"><i class="fas fa-bars"></i></button>
+            <div class="nav-links" id="mobile-nav">
+                <span class="menu-close" id="mobile-menu-close">&times;</span>
+                <a href="index.html"><i class="fas fa-home"></i> [ HOME ]</a>
+                <a href="about.html"><i class="fas fa-info-circle"></i> [ ABOUT ]</a>
+                <a href="rules.html"><i class="fas fa-gavel"></i> [ RULES ]</a>
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> [ LOGIN ]</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> [ REGISTER ]</a>
+                <a href="prizes.html"><i class="fas fa-trophy"></i> [ PRIZES ]</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="matrix-overlay"></div>
+
+        <h2 class="dept-title">[ DEPARTMENT OF CYBER SECURITY ]</h2>
+
+        <div class="conducts-text">CONDUCTS</div>
+
+        <div class="hero-logo-container">
+            <img src="load.png" alt="System Load" class="hero-logo">
+        </div>
+
+        <div class="pill-badge">
+            <span class="status-dot"></span> [ SYSTEM DATE: MARCH 13 & 14, 2026 ]
+        </div>
+        <h1 class="glitch-title">
+            SYSTEM BREACH DETECTED: <br>XPLOITX 2026
+        </h1>
+
+        <p style="color: #EEEEEE; font-size: 1.2rem;">
+            Join the <span class="text-pink">Ultimate Cybersecurity Challenge</span>. <span class="text-cyan">Prathyusha
+                Engineering College</span>
+        </p>
+
+        <!-- Cyber Fee Badge -->
+        <div class="cyber-fee-badge">
+            <span class="fee-icon"><i class="fas fa-bolt text-yellow"></i></span>
+            <span class="cyber-glitch-text"><span class="text-white">REGISTRATION FEE:</span> <span
+                    class="text-yellow">₹ 250 PER HEAD</span></span>
+        </div>
+        <br>
+
+        <a href="register.html" class="cta-btn"><i class="fas fa-rocket"></i> [ REGISTER NOW FOR THE HACKATHON ]</a>
+
+        <div style="margin-bottom: 20px; font-size: 0.9rem; color: #ffffff; margin-top: 30px;">[
+            <span class="text-alert"
+                style="color: #ff0000; text-shadow: 0 0 5px red;">TIME_TO_TOTAL_SYSTEM_FAILURE</span> ]
+        </div>
+
+        <div class="countdown-container">
+            <div class="time-box">
+                <span class="time-val" id="days">29</span>
+                <span class="time-label">Days</span>
+            </div>
+            <div class="time-box">
+                <span class="time-val" id="hours">23</span>
+                <span class="time-label">Hours</span>
+            </div>
+            <div class="time-box">
+                <span class="time-val" id="mins">59</span>
+                <span class="time-label">Mins</span>
+            </div>
+            <div class="time-box">
+                <span class="time-val" id="secs">32</span>
+                <span class="time-label">Secs</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <section>
+            <h2 class="section-header">>_ MISSION BRIEFING</h2>
+            <div class="container mission-interactive"
+                style="max-width: 1000px; text-align: justify; margin-bottom: 0px; padding: 30px; border: 1px solid rgba(0, 255, 65, 0.3); background: rgba(0, 20, 0, 0.4); transition: all 0.3s; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);">
+                <p style="font-size: 1.5rem; line-height: 1.8; color: #EEEEEE; text-shadow: 0 0 2px rgba(0,0,0,0.5);">
+                    <strong style="color: var(--neon-green); font-size: 1.7rem;">XPLOITX</strong> is not just a
+                    hackathon — it is a
+                    <span
+                        style="color: #00e5ff; font-weight: bold; text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);">24-hour
+                        intensive cybersecurity battlefield</span>.
+                    You are not just coding; you are <span
+                        style="color: var(--neon-green); font-weight: bold; border-bottom: 2px solid var(--neon-green);">defending
+                        the grid</span>.
+                    <br><br>
+                    Over the course of the event, you will progress through <span class="text-pink"
+                        style="font-weight: bold;">4 distinct phases</span> of cyber-warfare, from
+                    dissecting <span class="text-orange">malware</span> to hunting down <span class="text-cyan"
+                        style="font-weight: bold;">digital
+                        footprints</span>.
+                    Whether you are a <span style="color: #888;">[BEGINNER]</span> or a <span
+                        style="color: gold;">[PRO]</span>, the system needs
+                    <span
+                        style="color: var(--neon-green); font-size: 1.7rem; font-weight: bold; animation: pulse 2s infinite;">YOU</span>.
+                </p>
+            </div>
+
+            <!-- New Info Section -->
+            <section class="info-section hidden-el">
+                <div class="info-grid">
+                    <!-- What to Expect -->
+                    <div class="info-card green-card">
+                        <h2><span class="highlight-green">What to</span> Expect</h2>
+                        <ul class="info-list">
+                            <li>
+                                <div class="icon-box green-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                                <div class="text-box">
+                                    <strong>Innovation Challenge</strong>
+                                    <span>Real-world problems</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="icon-box green-icon"><i class="fas fa-heart"></i></div>
+                                <div class="text-box">
+                                    <strong>Mentorship</strong>
+                                    <span>Industry experts</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="icon-box green-icon"><i class="fas fa-bolt"></i></div>
+                                <div class="text-box">
+                                    <strong>Networking</strong>
+                                    <span>Connect & grow</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="icon-box green-icon"><i class="fas fa-trophy"></i></div>
+                                <div class="text-box">
+                                    <strong>Prizes & Perks</strong>
+                                    <span>Exclusive rewards</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Who Can Participate -->
+                    <div class="info-card blue-card">
+                        <h2><span class="highlight-blue">Who Can</span> Participate</h2>
+                        <ul class="info-list">
+                            <li>
+                                <div class="icon-box blue-icon"><i class="fas fa-graduation-cap"></i></div>
+                                <div class="text-box">
+                                    <strong>Students</strong>
+                                    <span>Undergraduate students from any university</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="icon-box blue-icon"><i class="fas fa-layer-group"></i></div>
+                                <div class="text-box">
+                                    <strong>All Skill Levels</strong>
+                                    <span>Beginners to experts, all welcome</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="icon-box blue-icon"><i class="fas fa-users"></i></div>
+                                <div class="text-box">
+                                    <strong>Team Size</strong>
+                                    <span>2-4 members can participate</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="icon-box blue-icon"><i class="fas fa-rocket"></i></div>
+                                <div class="text-box">
+                                    <strong>Any Domain</strong>
+                                    <span>Developers, designers, innovators</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+
+        </section>
+        </section>
+
+        <section>
+            <h2 class="section-header">>_ SYSTEM_REWARDS</h2>
+            <div class="cards-grid hidden-el">
+                <div class="card">
+                    <span class="card-icon">🏆</span>
+                    <h3>THE BOUNTY</h3>
+                    <p style="color: #EEEEEE;">Cash Prizes & Trophies for Top 3 Teams.</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🍕</span>
+                    <h3>FUEL</h3>
+                    <p style="color: #EEEEEE;">Food & Snacks provided for survival.</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📜</span>
+                    <h3>CERTIFICATIONS</h3>
+                    <p style="color: #EEEEEE;">Official participation certificates for all agents.</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🧠</span>
+                    <h3>KNOWLEDGE</h3>
+                    <p style="color: #EEEEEE;">Learn real-world Cyber Security skills (Malware, OSINT, Network Defense).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cyber Security Thoughts / Insights Section -->
+        <section class="cyber-insights hidden-el">
+            <h2 class="section-header">>_ THREAT_LANDSCAPE</h2>
+            <div class="container" style="max-width: 1000px; text-align: left; margin-bottom: 50px;">
+                <div class="terminal-window" style="border-color: var(--neon-green);">
+                    <div class="terminal-bar">
+                        <div class="terminal-title">root@matrix:~/manifesto.txt</div>
+                    </div>
+                    <div class="terminal-body" style="font-family: 'Share Tech Mono', monospace; line-height: 1.8;">
+                        <p style="color: #fff; margin-bottom: 20px;">
+                            <span style="color: var(--neon-green);">>> SYSTEM_ADVISORY:</span><br>
+                            In the digital age, security is not a product, but a process. The only truly secure system
+                            is
+                            one that is powered off, cast in a block of concrete and sealed in a lead-lined room with
+                            armed guards - and even then I have my doubts.
+                        </p>
+                        <p style="color: #ddd; margin-bottom: 20px;">
+                            "Cyber security is much more than a matter of IT. It is about the <span
+                                style="color: var(--neon-green);">DEFENSE</span> of our society, our economy, and our
+                            freedom."
+                        </p>
+                        <p style="color: #ddd;">
+                            <span style="color: var(--neon-green);">>> THREAT_LANDSCAPE:</span><br>
+                            We live in a world where the borders are not protecting us anymore. The new battlefield is
+                            invisible, silent, and everywhere. Knowledge is your only weapon. Code is your shield.
+                            <br><br>
+                            Join us. Defend the grid. <span class="blink">_</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+
+    <!-- Sponsors Section (Moved) -->
+    <section class="info-section hidden-el" style="margin-top: 40px; margin-bottom: 40px;">
+        <div class="container" style="text-align: center;">
+            <h2 class="section-header">[ PARTNERS IN CRIME ]</h2>
+            <p
+                style="color: #ccc; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto; text-align: justify;">
+                We are looking for visionary partners to join forces in this cybersecurity revolution. By sponsoring
+                <span class="text-green">XPLOITX 2026</span>, you gain direct access to the next generation of <span
+                    class="text-cyan">cyber-defenders</span> and <span class="text-pink">innovators</span>. Showcase
+                your brand, recruit top talent, and demonstrate your commitment to a secure digital future.
+            </p>
+
+            <div style="margin-bottom: 40px;">
+                <span
+                    style="display: inline-block; padding: 20px; border: 1px dashed var(--neon-green); border-radius: 8px; color: #666;">
+                    [ SPONSOR LOGO PLACEHOLDERS ]
+                </span>
+            </div>
+
+            <div
+                style="background: rgba(0, 20, 0, 0.6); padding: 30px; border-radius: 10px; border: 1px solid var(--neon-green); display: inline-block; max-width: 600px;">
+                <h3 class="text-yellow" style="margin-bottom: 15px;">BECOME A SPONSOR</h3>
+                <p style="margin-bottom: 20px; color: #eee; text-align: justify;">
+                    Partner with us to amplify your impact. Download our sponsorship brochure to explore the various
+                    tiers and benefits available for your organization.
+                </p>
+                <a href="sponsors.pdf" target="_blank" class="cta-btn" style="font-size: 1rem;"><i
+                        class="fas fa-file-pdf"></i> [ VIEW SPONSOR BROCHURE ]</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Organizing Nodes Section (Coordinators) -->
+    <footer class="organizing-nodes-section">
+        <h2 class="nodes-header">>_ ORGANIZING NODES</h2>
+        <p class="nodes-subtitle">Meet the architects of the simulation</p>
+
+        <div class="nodes-grid">
+            <!-- Card 1: Event Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">EVENT HEADS</div>
+                    <span class="node-role-label">System Administrators</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>N Ashish</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+918122079494">+91 8122079494</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>N Madhumitha Narayanan</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+917305456171">+91 7305456171</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>N Nirmal Raj</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+919150985783">+91 9150985783</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>R Divya Dharshini</strong>
+                            <span
+                                style="color: #aaa; font-size: 0.85rem; margin-bottom: 3px; display: block;">Student</span>
+                            <a href="tel:+917092729115">+91 7092729115</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 2: Staff Coordinators -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-id-card-alt"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">STAFF COORDS</div>
+                    <span class="node-role-label">Cyber Security Department</span>
+
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <strong>Dr. M D Boomija</strong>
+                            <span class="node-role-sublabel">HOD</span>
+                            <a href="tel:+917358028970">+91 7358028970</a>
+                        </li>
+                        <li class="node-item">
+                            <strong>Mrs. Anithalakshmi</strong>
+                            <span class="node-role-sublabel">Assistant Professor</span>
+                            <a href="tel:+919840268454">+91 9840268454</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 3: Quick Links -->
+            <div class="node-card">
+                <div class="node-avatar-placeholder">
+                    <i class="fas fa-link"></i>
+                </div>
+                <div class="node-content-wrapper">
+                    <div class="node-category">QUICK LINKS</div>
+                    <span class="node-role-label">System Navigation</span>
+
+                    <ul class="node-list">
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="index.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-home"></i> [ HOME ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="about.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-info-circle"></i> [ ABOUT ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="rules.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-gavel"></i> [ RULES ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="prizes.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-trophy"></i> [ PRIZES ]</a>
+                        </li>
+                        <li class="node-item" style="min-height: auto; padding: 10px 0; border: none;">
+                            <a href="register.html" style="color: var(--neon-green); text-decoration: none;"><i
+                                    class="fas fa-user-plus"></i> [ REGISTER ]</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-copyright">
+            <div>&copy; 2026 MATRIX_HACK • All systems operational</div>
+            <div style="margin-top: 5px; font-style: italic;">"Free your mind." - Morpheus</div>
+        </div>
+    </footer>
+
+
+
+    <script src="script.js"></script>
+    <!-- Hacker Terminal Overlay -->
+    <div id="hacker-terminal">
+        <div id="terminal-output">
+            Welcome to the Matrix...
+            Type 'help' to see available commands.
+        </div>
+        <div class="terminal-input-line">
+            <span class="terminal-prompt">guest@xploitx:~$</span>
+            <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+    <!-- Hidden Flag for CTF -->
+    <!-- FLAG: {XPL0ITX_M4ST3R_HACK3R} -->
+</body>
+
+</html>< ! - -   H I D D E N   F L A G :   f l a g { H T M L _ I N S P E C T I O N _ M A S T E R _ 2 0 2 6 }   - - > 
+     
+     

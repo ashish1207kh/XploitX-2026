@@ -1,0 +1,143 @@
+
+/* --- WHAT TO EXPECT & WHO CAN PARTICIPATE SECTION --- */
+.info-section {
+    padding: 60px 20px;
+    background: transparent;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.info-card {
+    background: #050505;
+    border: 1px solid #111;
+    border-radius: 16px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card h2 {
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 30px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Green Card Styling */
+.info-card.green-card {
+    border-color: rgba(0, 255, 65, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.05);
+}
+
+.info-card.green-card:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+    transform: translateY(-5px);
+    border-color: rgba(0, 255, 65, 0.5);
+}
+
+.highlight-green {
+    color: var(--neon-green);
+}
+
+/* Purple Card Styling */
+.info-card.purple-card {
+    border-color: rgba(160, 32, 240, 0.2);
+    box-shadow: 0 0 20px rgba(160, 32, 240, 0.05);
+}
+
+.info-card.purple-card:hover {
+    box-shadow: 0 0 30px rgba(160, 32, 240, 0.1);
+    transform: translateY(-5px);
+    border-color: rgba(160, 32, 240, 0.5);
+}
+
+.highlight-purple {
+    color: #a020f0; /* Purple Color */
+}
+
+/* List Styling */
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-list li {
+    display: flex;
+    align-items: center;
+    background: #0a0a0a;
+    padding: 15px 20px;
+    border-radius: 12px;
+    border: 1px solid #1a1a1a;
+    transition: 0.2s;
+}
+
+.info-list li:hover {
+    background: #111;
+    border-color: #333;
+}
+
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.green-icon {
+    background: rgba(0, 255, 65, 0.1);
+    color: var(--neon-green);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.purple-icon {
+    background: rgba(160, 32, 240, 0.1);
+    color: #a020f0;
+    border: 1px solid rgba(160, 32, 240, 0.2);
+}
+
+.text-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.text-box strong {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.text-box span {
+    color: #888;
+    font-size: 0.9rem;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+/* Mobile Adjust */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    .info-card {
+        padding: 25px;
+    }
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway - XploitX-2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loader-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s;">
+        <img src="load.png" alt="Loading..."
+            style="width: 650px; max-width: 90vw; height: auto; animation: pulse 1.5s infinite;">
+    </div>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; z-index: 5;">
+        <div style="background: #000; border: 2px solid var(--neon-green); padding: 30px; border-radius: 10px; width: 450px; box-shadow: 0 0 30px rgba(0,255,65,0.2); text-align: center;">
+            <h2 style="color: var(--neon-green); margin-bottom: 20px;">>_ PAYMENT GATEWAY</h2>
+
+            <!-- QR Code Section -->
+            <div style="background: #fff; padding: 10px; display: inline-block; margin-bottom: 15px; border-radius: 5px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=matrixhack@upi&pn=MatrixHack&am=400&cu=INR"
+                    alt="Payment QR" style="width: 150px; height: 150px;">
+            </div>
+            <p style="color: #fff; font-size: 0.9rem; margin-bottom: 15px;">SCAN TO PAY VIA UPI</p>
+
+            <div style="text-align: left; margin-bottom: 20px; font-family: monospace; color: #fff;">
+                <p>MERCHANT: MATRIX_HACK_CORP</p>
+                <p id="payment-amount-display" style="font-size: 1.2rem; font-weight: bold; color: var(--neon-green);">AMOUNT: ₹ ....</p>
+                <hr style="border-color: var(--dark-green); margin: 10px 0;">
+
+                <p style="margin-bottom: 5px; color: #aaa;">UPLOAD PAYMENT PROOF:</p>
+                <p style="margin-bottom: 5px; font-size: 0.8rem; color: #666;">(Screenshot of Transaction)</p>
+                <input type="file" id="payment-proof-file" accept="image/*"
+                    style="width: 100%; padding: 8px; margin-bottom: 15px; background: #111; border: 1px solid #333; color: var(--neon-green);">
+            </div>
+            
+            <button type="button" id="confirm-payment-btn" class="jack-in-btn" style="width: 100%;">[ UPLOAD PROOF & FINISH ]</button>
+            <button type="button" id="cancel-payment-btn"
+                style="background: none; border: none; color: #666; margin-top: 15px; cursor: pointer;">[ CANCEL TRANSACTION ]</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Inline script to handle payment specific logic or load it from script.js
+        // We will rely on script.js but initialized for payment page
+    </script>
+</body>
+</html>
