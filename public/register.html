@@ -155,28 +155,28 @@
                                     </div>
                                     <div class="form-group">
                                         <label>AGE</label>
-                                        <input type="number" name="member1_age" required>
+                                        <input type="text" name="member1_age" maxlength="2" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="form-group">
                                         <label>EMAIL ID</label>
-                                        <input type="email" name="member1_email" required>
+                                        <input type="email" name="member1_email" maxlength="30" required>
                                     </div>
                                     <div class="form-group">
                                         <label>PHONE NUMBER (CALLING)</label>
-                                        <input type="tel" name="member1_phone" required>
+                                        <input type="tel" name="member1_phone" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="form-group">
                                         <label>WHATSAPP NUMBER</label>
-                                        <input type="tel" name="member1_whatsapp" placeholder="Required for Updates"
-                                            required>
+                                        <input type="tel" name="member1_whatsapp" maxlength="10" placeholder="Required for Updates"
+                                            required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="form-group">
                                         <label>COLLEGE NAME</label>
                                         <input type="text" name="member1_college" required>
                                     </div>
                                     <div class="form-group">
-                                        <label>RESIDENTIAL ADDRESS</label>
-                                        <input type="text" name="member1_address" required>
+                                        <label>DISTRICT</label>
+                                        <input type="text" name="member1_district" maxlength="40" required>
                                     </div>
                                 </div>
                             </div>
@@ -216,7 +216,7 @@
                     <p style="color: #fff; font-size: 0.9rem; margin-bottom: 15px;">SCAN TO PAY VIA UPI</p>
 
                     <div style="text-align: left; margin-bottom: 20px; font-family: monospace; color: #fff;">
-                        <p>MERCHANT: MATRIX_HACK_CORP</p>
+                        <p>MERCHANT: XploitX</p>
                         <p id="payment-amount-display"
                             style="font-size: 1.2rem; font-weight: bold; color: var(--neon-green);">AMOUNT: ₹ 400.00</p>
                         <hr style="border-color: var(--dark-green); margin: 10px 0;">
@@ -378,7 +378,7 @@
         </div>
 
         <div class="footer-copyright">
-            <div>&copy; 2026 MATRIX_HACK • All systems operational</div>
+            <div>&copy; XploitX-2026 • All systems operational</div>
             <div style="margin-top: 5px; font-style: italic;">"Free your mind." - Morpheus</div>
         </div>
     </footer>

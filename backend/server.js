@@ -62,6 +62,9 @@ function initDb() {
     db.run(`ALTER TABLE teams ADD COLUMN payment_proof TEXT`, (err) => {
         // Ignore error if column exists
     });
+    db.run(`ALTER TABLE teams ADD COLUMN payment_verified INTEGER DEFAULT 0`, (err) => {
+        // Ignore error if exists
+    });
 
     db.run(`CREATE TABLE IF NOT EXISTS members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,7 +75,7 @@ function initDb() {
         phone TEXT,
         whatsapp TEXT,
         college TEXT,
-        address TEXT,
+        district TEXT,
         role TEXT,
         FOREIGN KEY(team_db_id) REFERENCES teams(id)
     )`);
@@ -118,6 +121,22 @@ function sendWhatsApp(number, message) {
 
 // API Routes
 
+// [NEW] Admin Login
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD;
+
+    if (!adminPass) {
+        return res.status(500).json({ error: 'Admin configuration error' });
+    }
+
+    if (password === adminPass) {
+        res.json({ success: true, token: 'admin-authorized' }); // Simple token for now
+    } else {
+        res.status(401).json({ error: 'Invalid Credentials' });
+    }
+});
+
 // Register
 app.post('/api/auth/register', async (req, res) => {
     console.log("[REGISTER] Request received:", req.body.teamName);
@@ -141,7 +160,7 @@ app.post('/api/auth/register', async (req, res) => {
             });
         };
 
-        // 1. Create Team with Temp ID
+        // 1. Create Team with Temp ID (Plain text password as requested)
         const result = await runQuery(
             `INSERT INTO teams (team_id, name, email, password, event, transaction_id) VALUES (?, ?, ?, ?, ?, ?)`,
             [tempId, teamName, email, password, event, transactionId]
@@ -163,8 +182,8 @@ app.post('/api/auth/register', async (req, res) => {
             if (i === 0) leaderWhatsApp = m.whatsapp;
 
             await runQuery(
-                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, address, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.address, role]
+                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, district, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.district, role]
             );
         }
 
@@ -357,6 +376,7 @@ app.post('/api/auth/verify-reset-otp', async (req, res) => {
     }
 
     try {
+        // Update with plain text
         await new Promise((resolve, reject) => {
             db.run(`UPDATE teams SET password = ? WHERE team_id = ?`, [newPassword, teamId], function (err) {
                 if (err) reject(err);
@@ -397,7 +417,9 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(401).json({ error: 'Team ID not found' });
         }
 
-        if (team.password === password) { // In production use bcrypt
+        let match = (team.password === password);
+
+        if (match) {
             res.json({
                 success: true,
                 team: {
@@ -410,6 +432,8 @@ app.post('/api/auth/login', async (req, res) => {
         } else {
             res.status(401).json({ error: 'Enter the correct password' });
         }
+
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -519,8 +543,8 @@ app.post('/api/team/:id/update', async (req, res) => {
             const role = m.role || (i === 0 ? 'LEADER' : 'MEMBER');
 
             await runQuery(
-                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, address, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.address, role]
+                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, district, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.district, role]
             );
         }
 
@@ -533,7 +557,7 @@ app.post('/api/team/:id/update', async (req, res) => {
 
 // Upload Payment Proof
 app.post('/api/payment/upload', upload.single('paymentProof'), (req, res) => {
-    const { teamId } = req.body;
+    const { teamId, utrNumber } = req.body;
     const file = req.file;
 
     if (!file || !teamId) {
@@ -542,13 +566,74 @@ app.post('/api/payment/upload', upload.single('paymentProof'), (req, res) => {
 
     const filePath = '/uploads/' + file.filename;
 
-    db.run(`UPDATE teams SET payment_proof = ? WHERE team_id = ?`, [filePath, teamId], function (err) {
+    // Update both payment proof path and UTR
+    db.run(`UPDATE teams SET payment_proof = ?, transaction_id = ? WHERE team_id = ?`, [filePath, utrNumber || "NOT_PROVIDED", teamId], function (err) {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Database update failed' });
         }
-        res.json({ success: true, message: 'Payment proof uploaded successfully' });
+        res.json({ success: true, message: 'Payment proof and UTR uploaded successfully' });
     });
+});
+
+// [NEW] Verify Payment Endpoint
+app.post('/api/admin/verify_payment', async (req, res) => {
+    const { teamId } = req.body;
+    if (!teamId) return res.status(400).json({ error: 'Team ID required' });
+
+    try {
+        // 1. Update verification status
+        await new Promise((resolve, reject) => {
+            db.run(`UPDATE teams SET payment_verified = 1 WHERE team_id = ?`, [teamId], function (err) {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        // 2. Fetch Leader Email to send confirmation
+        const teamData = await new Promise((resolve, reject) => {
+            db.get(`SELECT id, name FROM teams WHERE team_id = ?`, [teamId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        if (teamData) {
+            const leader = await new Promise((resolve, reject) => {
+                db.get(`SELECT email, name FROM members WHERE team_db_id = ? AND role = 'LEADER'`, [teamData.id], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+
+            if (leader && leader.email) {
+                const subject = "XploitX-2026: Payment Verified & Registration Confirmed";
+                const htmlContent = `
+                    <div style="font-family: monospace; padding: 20px; background: #000; color: #00FF41;">
+                        <h2 style="border-bottom: 2px solid #00FF41; padding-bottom: 10px;">> PAYMENT_VERIFIED</h2>
+                        <p>Dear ${leader.name},</p>
+                        <p>Your payment for team <strong>${teamData.name}</strong> (${teamId}) has been successfully verified.</p>
+                        <p>Your slot for <strong>XploitX-2026</strong> is now fully confirmed.</p>
+                        <div style="margin: 20px 0; border: 1px dashed #00FF41; padding: 10px;">
+                            STATUS: CONFIRMED<br>
+                            ACCESS_LEVEL: GRANTED
+                        </div>
+                        <p>See you at the event!</p>
+                        <p>Regards,<br>XploitX Team</p>
+                    </div>
+                 `;
+
+                // Fire and forget email
+                sendEmail(leader.email, subject, "Your payment has been verified. Registration Confirmed.", htmlContent);
+            }
+        }
+
+        res.json({ success: true, message: 'Payment Verified & Email Sent' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Admin Update Team Endpoint
@@ -570,9 +655,19 @@ app.post('/api/admin/update_team', async (req, res) => {
         if (!teamRow) return res.status(404).json({ error: 'Team not found' });
         const teamDbId = teamRow.id;
 
+        // If password is changed (not same as DB), hash it. 
+        // NOTE: This comparison is tricky if we send back the HASH to the client in 'loadData'.
+        // In the admin panel, we likely see the hash. If the admin edits it, they are sending a new Plaintext password.
+        // We should assume if it looks like a hash ($2b$), they didn't change it. If it doesn't, it is a new password.
+
+        let finalPassword = password;
+        if (password && !password.startsWith('$2b$')) {
+            finalPassword = await bcrypt.hash(password, 10);
+        }
+
         // Update Team Info
         await new Promise((resolve, reject) => {
-            db.run(`UPDATE teams SET name = ?, event = ?, password = ? WHERE id = ?`, [name, event, password, teamDbId], (err) => {
+            db.run(`UPDATE teams SET name = ?, event = ?, password = ? WHERE id = ?`, [name, event, finalPassword, teamDbId], (err) => {
                 if (err) reject(err);
                 else resolve();
             });
