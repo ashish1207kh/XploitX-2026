@@ -32,14 +32,54 @@ function draw() {
     }
 }
 
+// Custom Alert Implementation
+window.currentAlertCallback = null;
+
+window.closeCustomAlert = function () {
+    document.getElementById('custom-alert-overlay').style.display = 'none';
+    if (window.currentAlertCallback) {
+        window.currentAlertCallback();
+        window.currentAlertCallback = null;
+    }
+};
+
+window.showCustomAlert = function (message, callback = null) {
+    window.currentAlertCallback = callback;
+    let overlay = document.getElementById('custom-alert-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'custom-alert-overlay';
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100000;
+            display: flex; justify-content: center; align-items: center;
+        `;
+        overlay.innerHTML = `
+            <div style="background: #000; border: 2px solid var(--neon-green); padding: 30px; width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);">
+                <h2 style="color: var(--neon-green); border-bottom: 1px solid var(--dark-green); padding-bottom: 10px; margin-bottom: 20px;">> SYSTEM_ALERT</h2>
+                <div id="custom-alert-msg" style="color: #fff; margin-bottom: 20px; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;"></div>
+                <button onclick="window.closeCustomAlert()" class="jack-in-btn" style="width: 100%;">[ ACKNOWLEDGE ]</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    document.getElementById('custom-alert-msg').innerText = message;
+    overlay.style.display = 'flex';
+};
+
+// Override default alert to just show message (blocking behavior lost, be careful)
+window.alert = function (msg) {
+    window.showCustomAlert(msg);
+};
+
 setInterval(draw, 35);
 // Form handling
 const regForm = document.getElementById('team-form');
 if (regForm) {
     // Configuration
     const EVENT_CONFIG = {
-        '24 Hrs Hackathon': { min: 4, max: 4, fee: 250, perHead: true },
-        'paper_presentation': { min: 3, max: 3, fee: 120, perHead: false },
+        '24 Hrs Hackathon': { min: 2, max: 4, fee: 250, perHead: true },
+        'paper_presentation': { min: 3, max: 3, fee: 150, perHead: false },
         'digital_forensics': { min: 2, max: 2, fee: 0, perHead: false },
         'network_defense': { min: 2, max: 2, fee: 0, perHead: false }
     };
@@ -196,8 +236,14 @@ if (regForm) {
                 const data = await res.json();
 
                 if (res.ok && data.teamId) {
-                    // Redirect to payment with EVENT parameter
-                    window.location.href = `payment.html?teamId=${data.teamId}&amount=${currentFee}&event=${encodeURIComponent(event)}`;
+                    // Calculate Total Amount based on head count if applicable
+                    let totalAmount = currentFee;
+                    if (EVENT_CONFIG[event] && EVENT_CONFIG[event].perHead) {
+                        totalAmount = currentFee * members.length;
+                    }
+
+                    // Direct Redirect (No Alert)
+                    window.location.href = `payment.html?teamId=${data.teamId}&amount=${totalAmount}&event=${encodeURIComponent(event)}&members=${members.length}`;
                 } else {
                     throw new Error(data.error || "Registration failed");
                 }
@@ -236,21 +282,50 @@ function initPaymentPage() {
     // Update Amount
     if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ ${amount}.00`;
 
-    // Update QR Code based on Event
-    const qrImage = document.querySelector('.payment-qr-img'); // I need to add this class to the img in HTML or select by src/structure
-    // The current HTML has the img inside a div. Let's start by modifying the HTMl to give it an ID for easier selection, 
-    // or just select it roughly: `document.querySelector('#payment-modal img')` or similar in `payment.html`.
-    // In `payment.html` (and the modal in `register.html`), the img is the first one in the container usually.
-    // Let's rely on adding an ID to the image in `payment.html` in a separate step? 
-    // Or just robust selection:
+    // Show Per Head Cost for Hackathon
+    const merchantInfo = document.getElementById('merchant-info');
+    if (merchantInfo && !document.getElementById('per-head-msg')) {
+        let msgText = "";
+        if (eventName === '24 Hrs Hackathon') {
+            msgText = "RS 250 PER HEAD";
+        } else if (eventName === 'paper_presentation') {
+            msgText = "RS 150";
+        }
+
+        if (msgText) {
+            const perHeadMsg = document.createElement('p');
+            perHeadMsg.id = 'per-head-msg';
+            perHeadMsg.innerText = msgText;
+            perHeadMsg.style.color = "#aaa";
+            perHeadMsg.style.fontSize = "0.9rem";
+            perHeadMsg.style.marginBottom = "5px";
+            merchantInfo.parentNode.insertBefore(perHeadMsg, merchantInfo.nextSibling);
+        }
+    }
+
+    // Determine Member Count for Logic (Pass 'members' count via URL)
+    const memberCount = parseInt(urlParams.get('members')) || 1;
+
+    // Update QR Code & Amount Logic based on Event & Head Count
     const qrImg = document.querySelector('img[alt="Payment QR"]');
     if (qrImg) {
         if (eventName === '24 Hrs Hackathon') {
-            qrImg.src = 'Main Hack.jpeg';
+            if (memberCount === 2) {
+                qrImg.src = 'Main Hack(2 head).jpeg';
+                if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ 500.00`;
+            } else if (memberCount === 3) {
+                qrImg.src = 'Main Hack(3 head).jpeg';
+                if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ 750.00`;
+            } else if (memberCount === 4) {
+                qrImg.src = 'Main Hack(4 head).jpeg';
+                if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ 1000.00`;
+            } else {
+                // Fallback / Single?
+                qrImg.src = 'Main Hack.jpeg';
+            }
         } else if (eventName === 'paper_presentation') {
             qrImg.src = 'Paper Presentation.jpeg';
         }
-        // else keep default or generic
     }
 
     if (cancelBtn) {
@@ -266,6 +341,12 @@ function initPaymentPage() {
 
         newConfirmBtn.addEventListener('click', () => {
             const fileInput = document.getElementById('payment-proof-file');
+            const utrInput = document.getElementById('utr-number');
+
+            if (!utrInput || !utrInput.value.trim()) {
+                alert("Please enter the UTR / Transaction Number.");
+                return;
+            }
 
             if (!fileInput || fileInput.files.length === 0) {
                 alert("Please upload the payment proof screenshot.");
@@ -277,6 +358,7 @@ function initPaymentPage() {
 
             // IMPORTANT: Append text fields BEFORE the file so Multer can access them in filename callback
             formData.append('teamId', teamId);
+            formData.append('utrNumber', utrInput.value.trim());
             formData.append('paymentProof', file);
 
             newConfirmBtn.innerHTML = "[ UPLOADING... ]";
@@ -289,8 +371,9 @@ function initPaymentPage() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert("Proof has been submitted successfully.\nWe will contact you shortly.");
-                        window.location.href = 'index.html';
+                        showCustomAlert("Proof has been submitted successfully.\nWe will contact you shortly.", () => {
+                            window.location.href = 'index.html';
+                        });
                     } else {
                         alert("Upload Failed: " + (data.error || "Unknown Error"));
                         newConfirmBtn.innerHTML = "[ UPLOAD PROOF & FINISH ]";

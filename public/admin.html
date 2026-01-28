@@ -364,6 +364,7 @@
                     <th>ID</th>
                     <th>Team Name</th>
                     <th>Event</th>
+                    <th>UTR / Trans ID</th>
                     <th>Payment Proof</th>
                     <th>Leader Details</th>
                     <th>All Members</th>
@@ -375,13 +376,34 @@
             </tbody>
         </table>
         <script>
-            function checkAdmin() {
-                const p = document.getElementById('admin-pass').value.trim(); // Trim whitespace
-                if (p === 'admin123') {
-                    document.getElementById('login-overlay').style.display = 'none';
-                    loadData();
-                } else {
-                    alert('ACCESS DENIED');
+            async function checkAdmin() {
+                const p = document.getElementById('admin-pass').value.trim();
+                const btn = document.querySelector('.login-btn');
+                const originalText = btn.innerText;
+                
+                btn.innerText = "AUTHENTICATING...";
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('http://localhost:3000/api/admin/login', {
+                         method: 'POST',
+                         headers: { 'Content-Type': 'application/json' },
+                         body: JSON.stringify({ password: p })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        document.getElementById('login-overlay').style.display = 'none';
+                        loadData();
+                    } else {
+                        alert('ACCESS DENIED: ' + (data.error || 'Invalid Credentials'));
+                    }
+                } catch (e) {
+                    alert('CONNECTION ERROR');
+                    console.error(e);
+                } finally {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
                 }
             }
 
@@ -403,22 +425,32 @@
                 const tbody = document.querySelector('#teams-table tbody');
                 tbody.innerHTML = '';
                 
-                // Ensure Header has Action Column if not already
                 const theadRow = document.querySelector('#teams-table thead tr');
-                if (!theadRow.lastElementChild.innerText.includes('ACTION')) {
-                    const th = document.createElement('th');
-                    th.innerText = 'ACTION';
-                    theadRow.appendChild(th);
-                }
+                theadRow.innerHTML = `
+                    <th>ID</th>
+                    <th>Team Name</th>
+                    <th>Event</th>
+                    <th>UTR / Trans ID</th>
+                    <th>Payment Proof</th>
+                    <th>Leader Details</th>
+                    <th>All Members</th>
+                    <th>Password</th>
+                    <th>CHECK <br><span style="font-size:0.7em">(Admin)</span></th>
+                    <th>EDIT</th>
+                `;
+
+                document.querySelector('h1').innerText = '> SYSTEM_ADMINISTRATOR_VIEW (UPDATED)';
 
                 window.teamsData.forEach(t => {
+                    console.log("Processing team:", t.team_id, "Verified:", t.payment_verified);
+
                     const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
                     const waLink = leader && leader.whatsapp ? `<a href="https://wa.me/${leader.whatsapp}" target="_blank" class="wa-link">[WA]</a>` : '';
                     
                     let proofHtml = '<span style="color: grey;">Pending</span>';
                     if (t.payment_proof) {
                         const proofUrl = `${API_BASE_URL}${t.payment_proof}`;
-                        proofHtml = `<a href="${proofUrl}" target="_blank" style="color: var(--neon-green); font-weight: bold;">[ VIEW PROOF ]</a>`;
+                        proofHtml = `<a href="${proofUrl}" target="_blank" style="color: var(--neon-green); font-weight: bold;">[ VIEW ]</a>`;
                     }
 
                     let membersHtml = '';
@@ -426,11 +458,22 @@
                         membersHtml += `<div>- ${m.name} (${m.role})</div>`;
                     });
 
+                    // Verification Button Logic
+                    const verifiedStatus = parseInt(t.payment_verified, 10);
+                    let checkBtnHtml = '';
+                    if (!isNaN(verifiedStatus) && verifiedStatus === 1) {
+                         checkBtnHtml = `<span style="color:#00FF41; font-weight:bold;">[ VERIFIED ]</span>`;
+                    } else {
+                         // Default to check button if 0, null, or undefined
+                         checkBtnHtml = `<button onclick="openVerifyModal('${t.team_id}')" style="background:#FFA500; color:#000; border:none; padding:5px 10px; font-weight:bold; cursor:pointer;">[ CHECK ]</button>`;
+                    }
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                     <td>${t.team_id}</td>
                     <td>${t.name}</td>
                     <td>${t.event}</td>
+                    <td>${t.transaction_id || 'PENDING'}</td>
                     <td>${proofHtml}</td>
                     <td>
                         ${leader ? leader.name : 'N/A'}<br>
@@ -439,11 +482,74 @@
                     </td>
                     <td class="member-list">${membersHtml}</td>
                     <td>${t.password}</td>
+                    <td style="text-align:center;">${checkBtnHtml}</td>
                     <td><button onclick="openEditModal('${t.team_id}')" style="background:#003300; color:#0f0; border:1px solid #0f0; padding:5px; cursor:pointer;">[ EDIT ]</button></td>
                 `;
                     tbody.appendChild(tr);
                 });
             }
+
+            // --- VERIFY MODAL LOGIC ---
+            function openVerifyModal(teamId) {
+                const team = window.teamsData.find(t => t.team_id === teamId);
+                if (!team) return;
+
+                const API_BASE_URL = 'http://localhost:3000';
+                const proofUrl = team.payment_proof ? `${API_BASE_URL}${team.payment_proof}` : null;
+
+                document.getElementById('verify-team-id').innerText = team.team_id;
+                document.getElementById('verify-utr').innerText = team.transaction_id || "NOT PROVIDED";
+                
+                const imgContainer = document.getElementById('verify-img-container');
+                imgContainer.innerHTML = '';
+                if (proofUrl) {
+                    const img = document.createElement('img');
+                    img.src = proofUrl;
+                    img.style.maxWidth = "100%";
+                    img.style.border = "2px solid #00FF41";
+                    imgContainer.appendChild(img);
+                } else {
+                    imgContainer.innerText = "NO PROOF UPLOADED";
+                    imgContainer.style.color = "red";
+                }
+
+                document.getElementById('verify-modal').style.display = 'block';
+                // Store current team for button action
+                document.getElementById('do-verify-btn').onclick = () => performVerification(team.team_id);
+            }
+
+            function closeVerifyModal() {
+                 document.getElementById('verify-modal').style.display = 'none';
+            }
+
+            async function performVerification(teamId) {
+                const btn = document.getElementById('do-verify-btn');
+                btn.innerHTML = "[ VERIFYING... ]";
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('http://localhost:3000/api/admin/verify_payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ teamId })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        alert("PAYMENT VERIFIED & EMAIL SENT!");
+                        closeVerifyModal();
+                        loadData(); 
+                    } else {
+                        alert("ERROR: " + data.error);
+                    }
+                } catch(e) {
+                    alert("Network Error");
+                } finally {
+                    btn.innerHTML = "[ VERIFY PAYMENT & SEND MAIL ]";
+                    btn.disabled = false;
+                }
+            }
+
 
             // --- EDIT MODAL LOGIC ---
             
@@ -533,11 +639,11 @@
 
             function downloadCSV() {
                 if (!window.teamsData) return;
-                let csv = 'Team ID,Team Name,Event,Leader Name,Leader Phone,Leader WhatsApp,Member Count\n';
+                let csv = 'Team ID,Team Name,Event,Leader Name,Leader Phone,Leader WhatsApp,Member Count,Verified\n';
 
                 window.teamsData.forEach(t => {
                     const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
-                    csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
+                    csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length},${t.payment_verified ? 'Yes' : 'No'}\n`;
                 });
 
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -552,6 +658,30 @@
                 window.print();
             }
         </script>
+
+    <!-- VERIFY MODAL -->
+    <div id="verify-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; overflow-y:auto; padding-top: 50px;">
+        <div style="background:#050505; margin:0 auto 50px; padding:30px; width:90%; max-width:600px; border:2px solid #FFA500; box-shadow: 0 0 50px rgba(255,165,0,0.2); text-align:center;">
+            <h2 style="color:#FFA500; border-bottom: 2px solid #FFA500; padding-bottom: 15px; margin-bottom: 20px;">> VERIFY PAYMENT</h2>
+            
+            <div style="margin-bottom: 20px; font-size: 1.2rem; color: #fff;">
+                TEAM ID: <span id="verify-team-id" style="color: var(--neon-green);"></span>
+            </div>
+            
+             <div style="margin-bottom: 20px; font-size: 1.2rem; color: #fff;">
+                UTR NUMBER: <span id="verify-utr" style="color: #00BFFF; font-weight: bold; background: #111; padding: 5px 10px;"></span>
+            </div>
+
+            <div id="verify-img-container" style="margin-bottom: 30px; min-height: 200px; background: #111; display:flex; align-items:center; justify-content:center;">
+                <!-- Image goes here -->
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:20px;">
+                 <button onclick="closeVerifyModal()" style="background:transparent; color:#ff3333; border:1px solid #ff3333; padding:15px 30px; cursor:pointer; font-weight:bold;">[ CANCEL ]</button>
+                 <button id="do-verify-btn" style="background:#FFA500; color:#000; border:none; padding:15px 30px; font-weight:bold; cursor:pointer; box-shadow: 0 0 20px rgba(255,165,0,0.5);">[ VERIFY PAYMENT & SEND MAIL ]</button>
+            </div>
+        </div>
+    </div>
 
     <!-- EDIT MODAL -->
     <div id="edit-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; overflow-y:auto; padding-top: 50px;">
@@ -689,7 +819,7 @@
             </div>
 
             <div class="footer-copyright">
-                <div>&copy; 2026 MATRIX_HACK • All systems operational</div>
+                <div>&copy; XploitX-2026 • All systems operational</div>
                 <div style="margin-top: 5px; font-style: italic;">"Free your mind." - Morpheus</div>
             </div>
         </footer>
