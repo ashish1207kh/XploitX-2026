@@ -364,21 +364,19 @@
                     <th>ID</th>
                     <th>Team Name</th>
                     <th>Event</th>
-                    <th>Status</th>
+                    <th>Payment Proof</th>
                     <th>Leader Details</th>
                     <th>All Members</th>
                     <th>Password</th>
-                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <!-- Data will load here -->
             </tbody>
         </table>
-
         <script>
             function checkAdmin() {
-                const p = document.getElementById('admin-pass').value;
+                const p = document.getElementById('admin-pass').value.trim(); // Trim whitespace
                 if (p === 'admin123') {
                     document.getElementById('login-overlay').style.display = 'none';
                     loadData();
@@ -394,17 +392,34 @@
             }
 
             async function loadData() {
-                const res = await fetch('/api/admin/data');
-                window.teamsData = await res.json();
+                const API_BASE_URL = 'http://localhost:3000';
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/admin/data`);
+                    window.teamsData = await res.json();
+                } catch (e) { console.error(e); return; }
 
                 document.getElementById('stats').innerText = `Total Teams: ${window.teamsData.length}`;
 
                 const tbody = document.querySelector('#teams-table tbody');
                 tbody.innerHTML = '';
+                
+                // Ensure Header has Action Column if not already
+                const theadRow = document.querySelector('#teams-table thead tr');
+                if (!theadRow.lastElementChild.innerText.includes('ACTION')) {
+                    const th = document.createElement('th');
+                    th.innerText = 'ACTION';
+                    theadRow.appendChild(th);
+                }
 
                 window.teamsData.forEach(t => {
                     const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
                     const waLink = leader && leader.whatsapp ? `<a href="https://wa.me/${leader.whatsapp}" target="_blank" class="wa-link">[WA]</a>` : '';
+                    
+                    let proofHtml = '<span style="color: grey;">Pending</span>';
+                    if (t.payment_proof) {
+                        const proofUrl = `${API_BASE_URL}${t.payment_proof}`;
+                        proofHtml = `<a href="${proofUrl}" target="_blank" style="color: var(--neon-green); font-weight: bold;">[ VIEW PROOF ]</a>`;
+                    }
 
                     let membersHtml = '';
                     t.members.forEach(m => {
@@ -412,17 +427,11 @@
                     });
 
                     const tr = document.createElement('tr');
-
-                    const statusColor = t.status === 'CONFIRMED' ? '#00FF41' : '#FFA500';
-                    const actionBtn = t.status === 'CONFIRMED'
-                        ? '<span style="color:#00FF41">[APPROVED]</span>'
-                        : `<button onclick="approveTeam('${t.team_id}')" style="padding:5px; background: #00FF41; border:none; color:black; font-weight:bold; cursor:pointer;">[ APPROVE ]</button>`;
-
                     tr.innerHTML = `
                     <td>${t.team_id}</td>
                     <td>${t.name}</td>
                     <td>${t.event}</td>
-                    <td style="color:${statusColor}">${t.status || 'PENDING'}</td>
+                    <td>${proofHtml}</td>
                     <td>
                         ${leader ? leader.name : 'N/A'}<br>
                         ${leader ? leader.phone : ''}<br>
@@ -430,25 +439,105 @@
                     </td>
                     <td class="member-list">${membersHtml}</td>
                     <td>${t.password}</td>
-                    <td>${actionBtn}</td>
+                    <td><button onclick="openEditModal('${t.team_id}')" style="background:#003300; color:#0f0; border:1px solid #0f0; padding:5px; cursor:pointer;">[ EDIT ]</button></td>
                 `;
                     tbody.appendChild(tr);
                 });
-
-                // Re-attach hover listeners for dynamic content
-                const dynamicLinks = tbody.querySelectorAll('a');
-                dynamicLinks.forEach(el => {
-                    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-                    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-                });
             }
+
+            // --- EDIT MODAL LOGIC ---
+            
+            function openEditModal(teamId) {
+                const team = window.teamsData.find(t => t.team_id === teamId);
+                if (!team) return;
+
+                document.getElementById('edit-team-db-id').value = team.team_id; // Using string ID
+                document.getElementById('edit-team-name').value = team.name;
+                document.getElementById('edit-team-event').value = team.event;
+                document.getElementById('edit-team-pass').value = team.password; // Add Password
+
+                const membersContainer = document.getElementById('edit-members-container');
+                membersContainer.innerHTML = '';
+
+                team.members.forEach((m, idx) => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '15px';
+                    div.style.padding = '10px';
+                    div.style.border = '1px dashed #333';
+                    div.innerHTML = `
+                        <div style="font-weight:bold; color:var(--neon-green); margin-bottom:5px;">MEMBER ${idx+1} (${m.role})</div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                            <input type="text" class="edit-m-name" placeholder="Name" value="${m.name || ''}">
+                            <input type="number" class="edit-m-age" placeholder="Age" value="${m.age || ''}">
+                            <input type="text" class="edit-m-email" placeholder="Email" value="${m.email || ''}">
+                            <input type="text" class="edit-m-phone" placeholder="Phone" value="${m.phone || ''}">
+                            <input type="text" class="edit-m-whatsapp" placeholder="WhatsApp" value="${m.whatsapp || ''}">
+                            <input type="text" class="edit-m-college" placeholder="College" value="${m.college || ''}">
+                            <input type="text" class="edit-m-address" placeholder="Address" value="${m.address || ''}">
+                            <input type="hidden" class="edit-m-role" value="${m.role || 'MEMBER'}">
+                        </div>
+                    `;
+                    membersContainer.appendChild(div);
+                });
+
+                document.getElementById('edit-modal').style.display = 'block';
+            }
+
+            function closeEditModal() {
+                document.getElementById('edit-modal').style.display = 'none';
+            }
+
+            async function saveEditChanges() {
+                const teamId = document.getElementById('edit-team-db-id').value;
+                const name = document.getElementById('edit-team-name').value;
+                const event = document.getElementById('edit-team-event').value;
+                const password = document.getElementById('edit-team-pass').value;
+
+                const memberDivs = document.querySelectorAll('#edit-members-container > div');
+                const members = [];
+
+                memberDivs.forEach(div => {
+                    members.push({
+                        name: div.querySelector('.edit-m-name').value,
+                        age: div.querySelector('.edit-m-age').value,
+                        email: div.querySelector('.edit-m-email').value,
+                        phone: div.querySelector('.edit-m-phone').value,
+                        whatsapp: div.querySelector('.edit-m-whatsapp').value,
+                        college: div.querySelector('.edit-m-college').value,
+                        address: div.querySelector('.edit-m-address').value,
+                        role: div.querySelector('.edit-m-role').value
+                    });
+                });
+
+                const payload = { teamId, name, event, password, members };
+
+                try {
+                    const res = await fetch('http://localhost:3000/api/admin/update_team', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        alert("UPDATED SUCCESSFULLY");
+                        closeEditModal();
+                        loadData(); // Reload table
+                    } else {
+                        alert("ERROR: " + data.error);
+                    }
+                } catch (e) {
+                    alert("NETWORK ERROR");
+                }
+            }
+
             function downloadCSV() {
                 if (!window.teamsData) return;
                 let csv = 'Team ID,Team Name,Event,Leader Name,Leader Phone,Leader WhatsApp,Member Count\n';
 
                 window.teamsData.forEach(t => {
                     const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
-                    csv += `${t.team_id},"${t.name}",${t.event},${t.status || 'PENDING'},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
+                    csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length}\n`;
                 });
 
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -462,25 +551,46 @@
             function printPDF() {
                 window.print();
             }
-
-            async function approveTeam(teamId) {
-                if (!confirm('Are you sure you want to approve this team? An email will be sent.')) return;
-
-                try {
-                    const res = await fetch(`/api/admin/approve-team/${teamId}`, { method: 'POST' });
-                    const result = await res.json();
-                    if (result.success) {
-                        alert(result.message);
-                        loadData();
-                    } else {
-                        alert('Error: ' + result.error);
-                    }
-                } catch (err) {
-                    alert('Request failed');
-                    console.error(err);
-                }
-            }
         </script>
+
+    <!-- EDIT MODAL -->
+    <div id="edit-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; overflow-y:auto; padding-top: 50px;">
+        <div style="background:#050505; margin:0 auto 50px; padding:30px; width:90%; max-width:800px; border:2px solid var(--neon-green); box-shadow: 0 0 50px rgba(0,255,0,0.2);">
+            <h2 style="color:var(--neon-green); border-bottom: 2px solid var(--dark-green); padding-bottom: 15px; margin-bottom: 20px;">> EDIT TEAM DATA</h2>
+            <input type="hidden" id="edit-team-db-id">
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom: 30px;">
+                <div>
+                    <label style="color:#aaa; display:block; margin-bottom:5px;">Team Name</label>
+                    <input id="edit-team-name" style="width:100%; padding:10px; background:#111; border:1px solid #333; color:#fff;">
+                </div>
+                <div>
+                    <label style="color:#aaa; display:block; margin-bottom:5px;">Event</label>
+                    <select id="edit-team-event" style="width:100%; padding:10px; background:#111; border:1px solid #333; color:#fff;">
+                        <option value="24 Hrs Hackathon">24 Hrs Hackathon</option>
+                        <option value="paper_presentation">Paper Presentation</option>
+                        <option value="digital_forensics">Digital Forensics</option>
+                        <option value="network_defense">Network Defense</option>
+                    </select>
+                </div>
+                <!-- Password Field -->
+                <div>
+                    <label style="color:#aaa; display:block; margin-bottom:5px;">Password</label>
+                    <input id="edit-team-pass" style="width:100%; padding:10px; background:#111; border:1px solid #333; color:#fff;">
+                </div>
+            </div>
+            
+            <h3 style="color:#fff; margin-bottom:15px; border-bottom: 1px dashed #333; padding-bottom:5px;">> MEMBERS CONF</h3>
+            <div id="edit-members-container" style="max-height: 400px; overflow-y: auto;">
+                <!-- Members injected here -->
+            </div>
+            
+            <div style="margin-top:30px; text-align:right; border-top: 1px solid #333; padding-top: 20px; display:flex; justify-content:flex-end; gap:20px;">
+                 <button onclick="closeEditModal()" style="background:transparent; color:#ff3333; border:1px solid #ff3333; padding:10px 20px; cursor:pointer;">[ CANCEL ]</button>
+                 <button onclick="saveEditChanges()" style="background:var(--neon-green); color:#000; border:none; padding:10px 20px; font-weight:bold; cursor:pointer;">[ SAVE CHANGES ]</button>
+            </div>
+        </div>
+    </div>
 
         <!-- Organizing Nodes Section (Coordinators) -->
         <footer class="organizing-nodes-section">

@@ -80,6 +80,11 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
             <div>
                 <h2 class="section-header" id="dashboard-team-name">> TEAM_NAME</h2>
+                <div style="margin-bottom: 20px;">
+                    <span id="payment-status-badge" class="pill-badge" style="display:inline-block; margin:0; font-size: 0.9rem;">
+                        [ VALIDATING PAYMENT... ]
+                    </span>
+                </div>
                 <p class="sub-header" style="margin-bottom: 0;">Manage your operatives and mission status.</p>
             </div>
             <!-- Prototype Role Switcher -->
@@ -109,19 +114,16 @@
                         VIEW: LEADER ]</span>
                 </h3>
 
-                <form id="dashboard-form">
-                    <div id="dashboard-members" style="display: grid; gap: 20px;">
-                        <!-- JS will populate cards here -->
-                    </div>
+                <div id="dashboard-table-container" style="overflow-x: auto;">
+                    <!-- Table will be injected here -->
+                </div>
 
-                    <div id="leader-controls"
-                        style="margin-top: 30px; border-top: 1px solid var(--dark-green); padding-top: 20px; display: none; gap: 20px; flex-wrap: wrap;">
-                        <button type="submit" class="jack-in-btn" style="width: auto; padding: 10px 30px;">[ SAVE
-                            CHANGES ]</button>
-                        <button type="button" onclick="changePassword()" class="secondary-btn"
-                            style="padding: 10px 20px;">[ CHANGE PASSWORD ]</button>
-                    </div>
-                </form>
+                <div id="leader-controls"
+                    style="margin-top: 30px; border-top: 1px solid var(--dark-green); padding-top: 20px; display: none; gap: 20px; flex-wrap: wrap;">
+                    <!-- Save button removed as per requirements -->
+                    <button type="button" onclick="changePassword()" class="secondary-btn"
+                        style="padding: 10px 20px;">[ CHANGE PASSWORD ]</button>
+                </div>
             </div>
         </div>
     </div>

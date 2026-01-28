@@ -221,22 +221,10 @@
                             style="font-size: 1.2rem; font-weight: bold; color: var(--neon-green);">AMOUNT: ₹ 400.00</p>
                         <hr style="border-color: var(--dark-green); margin: 10px 0;">
 
-                        <p style="margin-bottom: 5px; color: #aaa;">OR PAY VIA CARD:</p>
-                        <p style="margin-bottom: 5px;">CARD NUMBER:</p>
-                        <input type="text" placeholder="XXXX-XXXX-XXXX-XXXX"
-                            style="width: 100%; padding: 8px; margin-bottom: 10px; background: #111; border: 1px solid #333; color: var(--neon-green);">
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;">
-                                <p style="margin-bottom: 5px;">EXPIRY:</p>
-                                <input type="text" placeholder="MM/YY"
-                                    style="width: 100%; padding: 8px; background: #111; border: 1px solid #333; color: var(--neon-green);">
-                            </div>
-                            <div style="flex: 1;">
-                                <p style="margin-bottom: 5px;">CVV:</p>
-                                <input type="password" placeholder="***"
-                                    style="width: 100%; padding: 8px; background: #111; border: 1px solid #333; color: var(--neon-green);">
-                            </div>
-                        </div>
+                        <p style="margin-bottom: 5px; color: #aaa;">UPLOAD PAYMENT PROOF:</p>
+                        <p style="margin-bottom: 5px; font-size: 0.8rem; color: #666;">(Screenshot of Transaction)</p>
+                        <input type="file" id="payment-proof-file" accept="image/*"
+                            style="width: 100%; padding: 8px; margin-bottom: 15px; background: #111; border: 1px solid #333; color: var(--neon-green);">
                     </div>
                     <button type="button" id="confirm-payment-btn" class="jack-in-btn" style="width: 100%;">[ INITIATE
                         TRANSFER ]</button>

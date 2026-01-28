@@ -11,8 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerText = "[ VERIFYING... ]";
         btn.disabled = true;
 
+        const API_BASE_URL = 'http://localhost:3000'; // Hardcoded for local development
+
         setTimeout(() => {
-            fetch('/api/auth/login', {
+            fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ loginId: teamId, password: password })
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(err => {
                     btn.innerText = "[ ACCESS DENIED ]";
                     btn.style.color = "red";
+                    alert(err.message); // Show specific error to user
                     console.error(err);
                     setTimeout(() => {
                         btn.innerText = "[ ACCESS DASHBOARD ]";

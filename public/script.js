@@ -40,8 +40,8 @@ if (regForm) {
     const EVENT_CONFIG = {
         '24 Hrs Hackathon': { min: 4, max: 4, fee: 250, perHead: true },
         'paper_presentation': { min: 3, max: 3, fee: 120, perHead: false },
-        'digital_forensics': { min: 2, max: 3, fee: 0, perHead: false },
-        'network_defense': { min: 2, max: 3, fee: 0, perHead: false }
+        'digital_forensics': { min: 2, max: 2, fee: 0, perHead: false },
+        'network_defense': { min: 2, max: 2, fee: 0, perHead: false }
     };
 
     let currentFee = 0;
@@ -59,258 +59,252 @@ if (regForm) {
     const amountDisplay = document.getElementById('payment-amount-display');
     const submitBtn = regForm.querySelector('button[type="submit"]');
 
-    // Initialize
+    // Define Backend URL
+    const API_BASE_URL = 'http://localhost:3000'; // Hardcoded for local development
+
+    // Run Init
     function init() {
-        if (eventSelect.value) {
-            handleEventChange();
-        } else {
-            // Default state
-            updateButtons();
-        }
-    }
 
-    // Event Change Handler
-    eventSelect.addEventListener('change', handleEventChange);
 
-    function handleEventChange() {
-        const evt = eventSelect.value;
-        const config = EVENT_CONFIG[evt];
 
-        if (!config) return;
+        // 2. Add Member Logic
+        if (addMemberBtn && membersContainer) {
+            addMemberBtn.addEventListener('click', () => {
+                const currentCount = membersContainer.querySelectorAll('.member-card').length;
+                if (currentCount >= currentMax) {
+                    alert(`Maximum ${currentMax} members allowed for this event.`);
+                    return;
+                }
 
-        currentMin = config.min;
-        currentMax = config.max;
+                const newIndex = currentCount + 1;
+                const template = document.getElementById('member-1');
+                const clone = template.cloneNode(true);
+                clone.id = `member-${newIndex}`;
+                clone.querySelector('h4').innerText = `> OPERATIVE_0${newIndex} (MEMBER)`;
 
-        // Initial fee calculation logic is moved to updateFee() to handle dynamic member counts
-        currentFee = config.fee;
-        if (config.perHead) {
-            // Need to calculate based on current members, but first enforce size
-            // We need a separate function to recalculate fee whenever members change
-        }
-
-        // Update UI
-        enforceTeamSize(); // This might add/remove members
-        updateFee(); // New function to calculate fee based on count
-        updateButtons();
-        updateSubmitButton();
-    }
-
-    function updateFee() {
-        const evt = eventSelect.value;
-        const config = EVENT_CONFIG[evt];
-        if (!config) return;
-
-        const memberCount = membersContainer.querySelectorAll('.member-card').length;
-
-        if (config.perHead) {
-            currentFee = config.fee * memberCount;
-        } else {
-            currentFee = config.fee;
-        }
-        updateFeeDisplay();
-        updateSubmitButton();
-    }
-
-    function updateFeeDisplay() {
-        if (amountDisplay) {
-            amountDisplay.innerText = `AMOUNT: ₹ ${currentFee}.00`;
-        }
-    }
-
-    function updateSubmitButton() {
-        if (submitBtn) {
-            if (currentFee === 0) {
-                submitBtn.innerText = "[ REGISTER NOW ]";
-            } else {
-                submitBtn.innerText = "[ PROCEED TO PAYMENT ]";
-            }
-        }
-    }
-
-    // Add Member Handler
-    addMemberBtn.addEventListener('click', () => {
-        const currentCount = membersContainer.querySelectorAll('.member-card').length;
-        if (currentCount < currentMax) {
-            addMemberCard(currentCount + 1);
-            updateButtons();
-            updateFee();
-        }
-    });
-
-    // Remove Member Handler
-    removeMemberBtn.addEventListener('click', () => {
-        const currentCount = membersContainer.querySelectorAll('.member-card').length;
-        if (currentCount > currentMin) {
-            membersContainer.lastElementChild.remove();
-            updateButtons();
-            updateFee();
-        }
-    });
-
-    function addMemberCard(index) {
-        const div = document.createElement('div');
-        div.className = 'member-card';
-        div.id = `member-${index}`;
-        div.innerHTML = `
-            <h4 style="color: #fff; margin-bottom: 15px;">> OPERATIVE_0${index}</h4>
-            <div class="grid-2">
-                <div class="form-group"><label>FULL NAME</label><input type="text" name="member${index}_name" required></div>
-                <div class="form-group"><label>AGE</label><input type="number" name="member${index}_age" required></div>
-                <div class="form-group"><label>EMAIL ID</label><input type="email" name="member${index}_email" required></div>
-                <div class="form-group"><label>PHONE NUMBER</label><input type="tel" name="member${index}_phone" required></div>
-                <div class="form-group"><label>WHATSAPP NUMBER</label><input type="tel" name="member${index}_whatsapp" required></div>
-                <div class="form-group"><label>COLLEGE NAME</label><input type="text" name="member${index}_college" required></div>
-                <div class="form-group"><label>RESIDENTIAL ADDRESS</label><input type="text" name="member${index}_address" required></div>
-            </div>
-        `;
-        membersContainer.appendChild(div);
-    }
-
-    function enforceTeamSize() {
-        const cards = membersContainer.querySelectorAll('.member-card');
-        const currentCount = cards.length;
-
-        // Add if below min
-        if (currentCount < currentMin) {
-            for (let i = currentCount + 1; i <= currentMin; i++) {
-                addMemberCard(i);
-            }
-        }
-        // Remove if above min (User Request: "Why showing if not compulsory?")
-        else if (currentCount > currentMin) {
-            for (let i = currentCount; i > currentMin; i--) {
-                membersContainer.lastElementChild.remove(); // Safely remove the last added card
-            }
-        }
-    }
-
-    function updateButtons() {
-        const currentCount = membersContainer.querySelectorAll('.member-card').length;
-        addMemberBtn.disabled = currentCount >= currentMax;
-        addMemberBtn.style.opacity = currentCount >= currentMax ? '0.5' : '1';
-
-        removeMemberBtn.disabled = currentCount <= currentMin;
-        removeMemberBtn.style.opacity = currentCount <= currentMin ? '0.5' : '1';
-    }
-
-    // Helper: Local Password Generator
-    function generatePassword() {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@!";
-        let pass = "";
-        for (let i = 0; i < 8; i++) {
-            pass += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return pass;
-    }
-
-    // Registration Handler
-    regForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        if (currentFee === 0) {
-            registerUser(0, "FREE_ENTRY_" + Math.floor(Math.random() * 10000));
-        } else {
-            paymentModal.style.display = 'flex';
-        }
-    });
-
-    // Payment Confirmation
-    confirmBtn.addEventListener('click', function () {
-        confirmBtn.innerHTML = "[ PROCESSING... ]";
-        confirmBtn.disabled = true;
-
-        fetch('/api/payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: currentFee })
-        })
-            .then(response => response.json())
-            .then(result => {
-                // Generate Mock TXN if needed
-                const mockTxnId = "TXN_" + Math.floor(Math.random() * 1000000);
-                registerUser(currentFee, mockTxnId);
-            })
-            .catch(err => {
-                console.warn("Payment API failed, using mock:", err);
-                const mockTxnId = "TXN_MOCK_" + Math.floor(Math.random() * 1000000);
-                registerUser(currentFee, mockTxnId);
-            });
-    });
-
-    // Register User Function
-    function registerUser(amountVal, txnId) {
-        const members = [];
-        const memberCards = document.querySelectorAll('.member-card');
-
-        memberCards.forEach((card) => {
-            const nameInput = card.querySelector(`input[name$="_name"]`);
-            const ageInput = card.querySelector(`input[name$="_age"]`);
-            const emailInput = card.querySelector(`input[name$="_email"]`);
-            const phoneInput = card.querySelector(`input[name$="_phone"]`);
-            const whatsappInput = card.querySelector(`input[name$="_whatsapp"]`);
-            const collegeInput = card.querySelector(`input[name$="_college"]`);
-            const addressInput = card.querySelector(`input[name$="_address"]`);
-
-            if (nameInput && nameInput.value) {
-                members.push({
-                    name: nameInput.value,
-                    age: ageInput ? ageInput.value : 0,
-                    email: emailInput ? emailInput.value : '',
-                    phone: phoneInput ? phoneInput.value : '',
-                    whatsapp: whatsappInput ? whatsappInput.value : '',
-                    college: collegeInput ? collegeInput.value : '',
-                    address: addressInput ? addressInput.value : ''
+                // Clear inputs and update names
+                const inputs = clone.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.value = '';
+                    // name format: member1_name -> member2_name
+                    const nameParts = input.name.split('_');
+                    if (nameParts.length > 1) {
+                        input.name = `member${newIndex}_${nameParts[1]}`;
+                    }
                 });
+
+                membersContainer.appendChild(clone);
+            });
+        }
+
+        // Remove Member Logic
+        if (removeMemberBtn) {
+            removeMemberBtn.addEventListener('click', () => {
+                const cards = membersContainer.querySelectorAll('.member-card');
+                if (cards.length > 1) {
+                    cards[cards.length - 1].remove();
+                }
+            });
+        }
+
+        // 2. Event Change Logic (Updates Constants & UI)
+        eventSelect.addEventListener('change', () => {
+            const config = EVENT_CONFIG[eventSelect.value];
+            if (config) {
+                currentFee = config.fee;
+                currentMin = config.min;
+                currentMax = config.max;
+
+                // Auto-Adjust Team Size
+                const cards = membersContainer.querySelectorAll('.member-card');
+                const currentCount = cards.length;
+
+                // Add if below min
+                const needed = currentMin - currentCount;
+                if (needed > 0) {
+                    for (let i = 0; i < needed; i++) {
+                        if (addMemberBtn) addMemberBtn.click();
+                    }
+                }
+                // Remove if above max
+                else if (currentCount > currentMax) {
+                    const removeCount = currentCount - currentMax;
+                    for (let i = 0; i < removeCount; i++) {
+                        if (removeMemberBtn) removeMemberBtn.click();
+                    }
+                }
             }
         });
 
-        const teamInput = document.getElementById('team-name');
-        const teamVal = teamInput ? teamInput.value : 'Unknown Team';
-        const password = generatePassword(); // Use local function
-        const leaderEmail = members.length > 0 ? members[0].email : 'unknown@matrix.com';
+        // Trigger once to set initial state
+        if (eventSelect.value) {
+            eventSelect.dispatchEvent(new Event('change'));
+        }
 
-        const payload = {
-            teamName: teamVal,
-            email: leaderEmail,
-            password: password,
-            event: eventSelect.value,
-            transactionId: txnId,
-            members: members
-        };
+        // 3. Submit Registration
+        regForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = regForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
 
-        fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    alert("REGISTRATION ERROR: " + data.error);
-                    confirmBtn.innerHTML = "[ INITIATE TRANSFER ]";
-                    confirmBtn.disabled = false;
+            // Validate Member Count
+            const memberCount = membersContainer.querySelectorAll('.member-card').length;
+            if (memberCount < currentMin) {
+                alert(`Minimum ${currentMin} members required for this event.`);
+                return;
+            }
+
+            submitBtn.innerHTML = "[ INITIATING UPLOAD... ]";
+            submitBtn.disabled = true;
+
+            try {
+                // Collect Data
+                const teamName = document.getElementById('team-name').value;
+                const event = eventSelect.value;
+                const members = [];
+
+                document.querySelectorAll('.member-card').forEach(card => {
+                    const m = {};
+                    const inputs = card.querySelectorAll('input');
+                    let hasData = false;
+                    inputs.forEach(input => {
+                        const parts = input.name.split('_');
+                        if (parts.length > 1) {
+                            const field = parts.slice(1).join('_'); // e.g., name, phone
+                            m[field] = input.value;
+                            if (input.value) hasData = true;
+                        }
+                    });
+                    if (hasData) members.push(m);
+                });
+
+                const payload = {
+                    teamName,
+                    email: members[0].email,
+                    password: Math.random().toString(36).slice(-8), // Auto-gen password
+                    event,
+                    transactionId: "PENDING",
+                    members
+                };
+
+                const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.teamId) {
+                    // Redirect to payment with EVENT parameter
+                    window.location.href = `payment.html?teamId=${data.teamId}&amount=${currentFee}&event=${encodeURIComponent(event)}`;
                 } else {
-                    alert(`REGISTRATION SUCCESSFUL!\n\nYour registration is PENDING APPROVAL.\n\nYou will receive an email with your credentials once the Admin confirms your details.`);
-                    window.location.href = 'login.html';
+                    throw new Error(data.error || "Registration failed");
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Network Error: " + err.message);
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = "[ INITIATE TRANSFER ]";
-            });
-    }
 
-    // Cancel Payment
-    cancelBtn.addEventListener('click', function () {
-        paymentModal.style.display = 'none';
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = "[ INITIATE TRANSFER ]";
-    });
+            } catch (err) {
+                console.error(err);
+                alert("Error: " + err.message);
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
 
     // Run Init
     init();
+} // End of if (regForm)
+
+// Check if we are on payment page (Global check, outside regForm)
+if (window.location.pathname.includes('payment.html')) {
+    initPaymentPage();
+}
+
+// Payment Page Logic (Global Function)
+// Payment Page Logic (Global Function)
+function initPaymentPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const teamId = urlParams.get('teamId');
+    const amount = urlParams.get('amount');
+    const eventName = urlParams.get('event'); // Get event name
+    const API_BASE_URL = 'http://localhost:3000';
+
+    const amountDisplay = document.getElementById('payment-amount-display');
+    const confirmBtn = document.getElementById('confirm-payment-btn');
+    const cancelBtn = document.getElementById('cancel-payment-btn');
+
+    // Update Amount
+    if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ ${amount}.00`;
+
+    // Update QR Code based on Event
+    const qrImage = document.querySelector('.payment-qr-img'); // I need to add this class to the img in HTML or select by src/structure
+    // The current HTML has the img inside a div. Let's start by modifying the HTMl to give it an ID for easier selection, 
+    // or just select it roughly: `document.querySelector('#payment-modal img')` or similar in `payment.html`.
+    // In `payment.html` (and the modal in `register.html`), the img is the first one in the container usually.
+    // Let's rely on adding an ID to the image in `payment.html` in a separate step? 
+    // Or just robust selection:
+    const qrImg = document.querySelector('img[alt="Payment QR"]');
+    if (qrImg) {
+        if (eventName === '24 Hrs Hackathon') {
+            qrImg.src = 'Main Hack.jpeg';
+        } else if (eventName === 'paper_presentation') {
+            qrImg.src = 'Paper Presentation.jpeg';
+        }
+        // else keep default or generic
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    }
+
+    if (confirmBtn) {
+        // Remove existing listeners to be safe (though cloning is better, we'll just add new one and assume clean state)
+        confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+        const newConfirmBtn = document.getElementById('confirm-payment-btn');
+
+        newConfirmBtn.addEventListener('click', () => {
+            const fileInput = document.getElementById('payment-proof-file');
+
+            if (!fileInput || fileInput.files.length === 0) {
+                alert("Please upload the payment proof screenshot.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+
+            // IMPORTANT: Append text fields BEFORE the file so Multer can access them in filename callback
+            formData.append('teamId', teamId);
+            formData.append('paymentProof', file);
+
+            newConfirmBtn.innerHTML = "[ UPLOADING... ]";
+            newConfirmBtn.disabled = true;
+
+            fetch(`${API_BASE_URL}/api/payment/upload`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Proof has been submitted successfully.\nWe will contact you shortly.");
+                        window.location.href = 'index.html';
+                    } else {
+                        alert("Upload Failed: " + (data.error || "Unknown Error"));
+                        newConfirmBtn.innerHTML = "[ UPLOAD PROOF & FINISH ]";
+                        newConfirmBtn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Network Error during upload.");
+                    newConfirmBtn.innerHTML = "[ UPLOAD PROOF & FINISH ]";
+                    newConfirmBtn.disabled = false;
+                });
+        });
+    }
 }
 
 

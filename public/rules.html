@@ -105,203 +105,71 @@
 
     <div class="container">
 
-        <!-- GENERAL & ELIGIBILITY -->
+        <!-- GENERAL CONDUCT -->
         <section>
-            <h2 class="section-header">[ GENERAL PROTOCOLS ]</h2>
-            <div class="terminal-window" style="max-width: 1000px; margin: 0 auto 40px auto;">
+            <h2 class="section-header">[ GENERAL CODE OF CONDUCT ]</h2>
+            <div class="terminal-window" style="max-width: 900px; margin: 0 auto; margin-bottom: 0;">
                 <div class="terminal-bar">
                     <div class="dots">
                         <div class="dot red"></div>
                         <div class="dot yellow"></div>
                         <div class="dot green"></div>
                     </div>
-                    <div class="terminal-title">root@xploitx:~/general_rules.sh</div>
+                    <div class="terminal-title">admin@matrix:~/conduct_rules.txt</div>
                 </div>
-                <div class="terminal-body" style="padding: 30px;">
-                    <div class="rules-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                        <div>
-                            <h3 style="color: var(--neon-green); margin-bottom: 15px;">> 1. ELIGIBILITY & REGISTRATION
-                            </h3>
-                            <ul class="styled-list">
-                                <li>Open to undergraduate and postgraduate students.</li>
-                                <li><strong>Deadline:</strong> Must register via portal before the timer hits zero.</li>
-                                <li><strong>Team Size:</strong> Adhere to track constraints (Max 4-5).</li>
-                                <li><strong>Cross-College:</strong> Inter-institutional teams are <span
-                                        style="color: #00FF41;">PERMITTED</span>.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 style="color: var(--neon-green); margin-bottom: 15px;">> 2. EVENT FORMAT</h3>
-                            <ul class="styled-list">
-                                <li><strong>Duration:</strong> 24-Hour Non-Stop Hackathon.</li>
-                                <li><strong>Structure:</strong> Day 1 & Day 2 Tracks.</li>
-                                <li><strong>Schedule:</strong> Strict adherence to timeline is mandatory.</li>
-                                <li><strong>ID Card:</strong> Valid College ID is required for entry.</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="terminal-body" style="text-align: justify; padding: 30px;">
+                    <ul class="rules-list" style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 10px;">
+                            <strong style="color: var(--neon-green); font-size: 1.1rem;">> 01. ELIGIBILITY</strong>
+                            <p style="color: #ddd; margin-top: 5px;">All team members must be currently enrolled
+                                students. Inter-college teams are permitted.</p>
+                        </li>
+                        <li style="margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 10px;">
+                            <strong style="color: var(--neon-green); font-size: 1.1rem;">> 02. TEAM COMPOSITION</strong>
+                            <p style="color: #ddd; margin-top: 5px;">Teams must adhere to the size restraints of their
+                                respective events (Mini: 2, Max: 4 or 5 depending on event).</p>
+                        </li>
+                        <li style="margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 10px;">
+                            <strong style="color: var(--neon-green); font-size: 1.1rem;">> 03. EQUIPMENT</strong>
+                            <p style="color: #ddd; margin-top: 5px;">Bring your own laptops, chargers, and any specific
+                                hardware you might need. Wi-Fi will be provided.</p>
+                        </li>
+                        <li style="margin-bottom: 0;">
+                            <strong style="color: red; font-size: 1.1rem;">> 04. ZERO TOLERANCE POLICY</strong>
+                            <p style="color: #ddd; margin-top: 5px;">Harassment, discrimination, or cheating/plagiarism
+                                will lead to immediate disqualification and removal from the premises.</p>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </section>
 
-        <!-- TRACK WISE RULES -->
+        <!-- HACKATHON SPECIFIC -->
         <section class="hidden-el">
-            <h2 class="section-header">[ TRACK_SPECIFIC_REGULATIONS ]</h2>
+            <h2 class="section-header">[ HACKATHON PROTOCOLS ]</h2>
             <div class="cards-grid">
-
-                <!-- Malware Analysis -->
-                <div class="card card-3d" style="border-color: #ff0000;">
-                    <span class="card-icon" style="color: #ff0000;"><i class="fas fa-biohazard"></i></span>
-                    <h3 style="color: #ff0000;">MALWARE ANALYSIS</h3>
-                    <ul class="mini-rule-list">
-                        <li>Analyze <strong>ONLY</strong> provided samples.</li>
-                        <li>Execution outside isolated sandbox is <strong>PROHIBITED</strong>.</li>
-                        <li>No internet access during deep analysis phase.</li>
-                        <li>Running on personal/public systems = <strong>DISQUALIFICATION</strong>.</li>
-                    </ul>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-code"></i></span>
+                    <h3>FRESH CODE</h3>
+                    <p>All code must be written during the event. Libraries and frameworks are allowed, but the core
+                        logic must be original.</p>
                 </div>
-
-                <!-- Secure Code -->
-                <div class="card card-3d" style="border-color: #00d2ff;">
-                    <span class="card-icon" style="color: #00d2ff;"><i class="fas fa-shield-alt"></i></span>
-                    <h3 style="color: #00d2ff;">SECURE CODE & VAPT</h3>
-                    <ul class="mini-rule-list">
-                        <li>Use <strong>ONLY</strong> ethical & legal testing methods.</li>
-                        <li>Target only assigned applications.</li>
-                        <li>Attacking unauthorized targets is illegal & punishable.</li>
-                        <li>Findings must be documented clearly.</li>
-                    </ul>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-share-alt"></i></span>
+                    <h3>SUBMISSION</h3>
+                    <p>Projects must be submitted to the designated repository before the countdown hits zero. Late
+                        submissions will be rejected.</p>
                 </div>
-
-                <!-- OSINT -->
-                <div class="card card-3d" style="border-color: #ff00ff;">
-                    <span class="card-icon" style="color: #ff00ff;"><i class="fas fa-search-location"></i></span>
-                    <h3 style="color: #ff00ff;">OSINT</h3>
-                    <ul class="mini-rule-list">
-                        <li>Gather info from <strong>PUBLIC</strong> sources only.</li>
-                        <li>No fake accounts or impersonation allowed.</li>
-                        <li>Social engineering/harassment is <strong>STRICTLY FORBIDDEN</strong>.</li>
-                        <li>Accuracy & verification are key metrics.</li>
-                    </ul>
-                </div>
-
-                <!-- CTF -->
-                <div class="card card-3d" style="border-color: #ffff00;">
-                    <span class="card-icon" style="color: #ffff00;"><i class="fas fa-flag"></i></span>
-                    <h3 style="color: #ffff00;">CAPTURE THE FLAG</h3>
-                    <ul class="mini-rule-list">
-                        <li>Flags must be obtained individually.</li>
-                        <li>Sharing flags = <strong>IMMEDIATE BAN</strong>.</li>
-                        <li>Plagiarism/Collaboration across teams is prohibited.</li>
-                        <li>Organizer's decision is final.</li>
-                    </ul>
-                </div>
-
-                <!-- Network Defense -->
-                <div class="card card-3d" style="border-color: #00ff41;">
-                    <span class="card-icon" style="color: #00ff41;"><i class="fas fa-network-wired"></i></span>
-                    <h3>NETWORK DEFENSE</h3>
-                    <ul class="mini-rule-list">
-                        <li>Defend assigned networks from simulated attacks.</li>
-                        <li>Tampering with other teams is not allowed.</li>
-                        <li>Focus on Monitoring, Detection, & Mitigation.</li>
-                        <li>Logs must be preserved for evaluation.</li>
-                    </ul>
-                </div>
-
-                <!-- Paper Presentation -->
-                <div class="card card-3d" style="border-color: #FFA500;">
-                    <span class="card-icon" style="color: #FFA500;"><i class="fas fa-file-alt"></i></span>
-                    <h3 style="color: #FFA500;">PAPER PRESENTATION</h3>
-                    <ul class="mini-rule-list">
-                        <li>Must be <strong>ORIGINAL</strong> & plagiarism-free.</li>
-                        <li>Topics: Cybersec, Ethical Hacking, Crypto, Forensics.</li>
-                        <li>Strict time limits for presentation & Q&A.</li>
-                        <li>Judges' decision is final.</li>
-                    </ul>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- CODE OF CONDUCT & EVALUATION -->
-        <section class="hidden-el" style="margin-top: 40px;">
-            <div class="terminal-window"
-                style="max-width: 1000px; margin: 0 auto; border-color: #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);">
-                <div class="terminal-bar" style="background: rgba(50, 0, 0, 0.9);">
-                    <div class="terminal-title" style="color: #ff5555;">Warning: system_monitor_active</div>
-                </div>
-                <div class="terminal-body" style="padding: 30px;">
-                    <div class="rules-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                        <div>
-                            <h3 style="color: #ff5555; margin-bottom: 15px;"><i class="fas fa-exclamation-triangle"></i>
-                                CODE OF CONDUCT</h3>
-                            <ul class="styled-list warning-list">
-                                <li>Ethical hacking principles are <strong>MANDATORY</strong>.</li>
-                                <li>Misconduct/Cheating = Disqualification + Fine + Ban.</li>
-                                <li>Respect Organizers, Judges & Participants.</li>
-                                <li><strong>PROHIBITED:</strong> Alcohol, Drugs, Disruptive Behavior.</li>
-                                <li>Modifications to rules reserved by Organizers.</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 style="color: #00BFFF; margin-bottom: 15px;"><i class="fas fa-clipboard-check"></i>
-                                EVALUATION CRITERIA</h3>
-                            <ul class="styled-list">
-                                <li><span style="color: #fff;">[25%]</span> Technical Skill & Difficulty</li>
-                                <li><span style="color: #fff;">[25%]</span> Innovation & Creativity</li>
-                                <li><span style="color: #fff;">[25%]</span> Accuracy & Clarity</li>
-                                <li><span style="color: #fff;">[25%]</span> Presentation & Documentation</li>
-                            </ul>
-                            <p style="margin-top: 15px; color: #aaa; font-size: 0.9rem;">
-                                * Prizes awarded based on overall performance in each track.
-                            </p>
-                        </div>
-                    </div>
+                <div class="card card-3d">
+                    <span class="card-icon"><i class="fas fa-chalkboard-teacher"></i></span>
+                    <h3>DEMO</h3>
+                    <p>Teams must be prepared to demo their hack to the judges. The demo should be functional and live.
+                    </p>
                 </div>
             </div>
         </section>
 
-        <style>
-            .rules-grid ul.styled-list li {
-                margin-bottom: 10px;
-                color: #ccc;
-                position: relative;
-                padding-left: 20px;
-            }
 
-            .rules-grid ul.styled-list li::before {
-                content: '>';
-                position: absolute;
-                left: 0;
-                color: var(--neon-green);
-            }
-
-            .warning-list li::before {
-                color: #ff5555 !important;
-            }
-
-            .mini-rule-list {
-                list-style: none;
-                padding: 0;
-                text-align: left;
-                margin-top: 15px;
-            }
-
-            .mini-rule-list li {
-                margin-bottom: 8px;
-                font-size: 0.9rem;
-                color: #ddd;
-                border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-                padding-bottom: 4px;
-            }
-
-            .mini-rule-list li:last-child {
-                border-bottom: none;
-            }
-
-            /* Hover effects handled by script.js card-3d logic */
-        </style>
 
     </div>
 

@@ -1,15 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
     const teamId = localStorage.getItem('current_team_id');
-    const role = localStorage.getItem('current_user_role') || 'LEADER'; // Default
-    const teams = JSON.parse(localStorage.getItem('hackathon_teams') || '[]');
-    const container = document.getElementById('dashboard-members');
+    let currentRole = localStorage.getItem('current_user_role') || 'LEADER'; // Default
+    let team = null;
+    const container = document.getElementById('dashboard-table-container');
     const teamNameHeader = document.getElementById('dashboard-team-name');
     const form = document.getElementById('dashboard-form');
     const leaderControls = document.getElementById('leader-controls');
 
     // Find Team
+    const API_BASE_URL = 'http://localhost:3000';
+
     // Load Team Data via API
-    fetch(`/api/team/${teamId}`)
+    fetch(`${API_BASE_URL}/api/team/${teamId}`)
         .then(res => res.json())
         .then(data => {
             if (data.error) {
@@ -27,6 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set default roles from DB if present, else infer
             // Ensure members array is populated
             if (!team.members) team.members = [];
+
+            // Update Payment Status
+            const paymentBadge = document.getElementById('payment-status-badge');
+            if (paymentBadge) {
+                if (team.transaction_id || team.payment_proof) {
+                    paymentBadge.innerText = "[ PAYMENT COMPLETED ]";
+                    paymentBadge.style.boxShadow = "0 0 10px var(--neon-green)";
+                    paymentBadge.style.borderColor = "var(--neon-green)";
+                    paymentBadge.style.color = "var(--neon-green)";
+                } else {
+                    paymentBadge.innerText = "[ PAYMENT PENDING ]";
+                    paymentBadge.style.boxShadow = "0 0 10px red";
+                    paymentBadge.style.borderColor = "red";
+                    paymentBadge.style.color = "red";
+                }
+            }
 
             renderMembers();
         })
@@ -48,11 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMembers() {
         if (!team) return;
-        teamNameHeader.innerText = `> TEAM: ${team.name}`; // Updated to use Name from DB
+        teamNameHeader.innerText = `> TEAM: ${team.name} [ ID: ${team.team_id} ]`; // Updated to use Name from DB
 
-        container.innerHTML = '';
         const isLeader = currentRole === 'LEADER';
-
         document.getElementById('role-indicator').innerText = `[ VIEW: ${currentRole} ]`;
 
         if (isLeader) {
@@ -60,63 +76,48 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('role-leader-btn').style.background = 'rgba(0,255,65,0.2)';
             document.getElementById('role-member-btn').style.background = 'transparent';
         } else {
-            leaderControls.style.display = 'none';
+            leaderControls.style.display = 'block'; // Keep block to show Change Password if needed, or hide specific buttons
             document.getElementById('role-leader-btn').style.background = 'transparent';
             document.getElementById('role-member-btn').style.background = 'rgba(0,255,65,0.2)';
         }
 
-        team.members.forEach((member, index) => {
-            const card = document.createElement('div');
-            card.className = 'member-card';
-            // Determine if input is disabled
-            const disabled = !isLeader ? 'disabled' : '';
-            const readOnlyStyle = !isLeader ? 'background: transparent; border: none; color: #ccc;' : '';
+        let tableHtml = `
+            <table style="width: 100%; border-collapse: collapse; color: #fff; margin-top: 10px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--neon-green); text-align: left;">
+                        <th style="padding: 10px;">ROLE</th>
+                        <th style="padding: 10px;">FULL NAME</th>
+                        <th style="padding: 10px;">AGE</th>
+                        <th style="padding: 10px;">EMAIL ID</th>
+                        <th style="padding: 10px;">PHONE</th>
+                        <th style="padding: 10px;">WHATSAPP</th>
+                        <th style="padding: 10px;">COLLEGE</th>
+                        <th style="padding: 10px;">ADDRESS</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
 
-            card.innerHTML = `
-                <h4 style="color: #fff; margin-bottom: 15px;">
-                    > OPERATIVE_0${index + 1} ${index === 0 ? '(LEADER)' : ''}
-                    ${isLeader && team.members.length > 4 ?
-                    `<button type="button" onclick="removeMember(${index})" style="float: right; color: #ff5555; background: none; border: 1px solid #ff5555; cursor: pointer; font-size: 0.7rem; padding: 2px 5px;">REMOVE</button>`
-                    : ''}
-                </h4>
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>FULL NAME</label>
-                        <input type="text" name="member_${index}_name" value="${member.name}" ${disabled} style="${readOnlyStyle}">
-                    </div>
-                    <div class="form-group">
-                        <label>AGE</label>
-                        <input type="number" name="member_${index}_age" value="${member.age}" ${disabled} style="${readOnlyStyle}">
-                    </div>
-                    <div class="form-group">
-                        <label>EMAIL ID</label>
-                        <input type="email" name="member_${index}_email" value="${member.email}" ${disabled} style="${readOnlyStyle}">
-                    </div>
-                    <div class="form-group">
-                        <label>PHONE NUMBER</label>
-                        <input type="tel" name="member_${index}_phone" value="${member.phone}" ${disabled} style="${readOnlyStyle}">
-                    </div>
-                    <div class="form-group">
-                        <label>COLLEGE NAME</label>
-                        <input type="text" name="member_${index}_college" value="${member.college}" ${disabled} style="${readOnlyStyle}">
-                    </div>
-                    <div class="form-group">
-                        <label>RESIDENTIAL ADDRESS</label>
-                        <input type="text" name="member_${index}_address" value="${member.address}" ${disabled} style="${readOnlyStyle}">
-                    </div>
-                </div>
+        team.members.forEach((member, index) => {
+            const roleLabel = index === 0 ? '<span style="color:var(--neon-yellow)">(LEADER)</span>' : `OP_0${index}`;
+
+            tableHtml += `
+                <tr style="border-bottom: 1px solid var(--dark-green);">
+                    <td style="padding: 10px; color: var(--neon-green);">${roleLabel}</td>
+                    <td style="padding: 10px;">${member.name || '-'}</td>
+                    <td style="padding: 10px;">${member.age || '-'}</td>
+                    <td style="padding: 10px;">${member.email || '-'}</td>
+                    <td style="padding: 10px;">${member.phone || '-'}</td>
+                    <td style="padding: 10px;">${member.whatsapp || '-'}</td>
+                    <td style="padding: 10px;">${member.college || '-'}</td>
+                    <td style="padding: 10px;">${member.address || '-'}</td>
+                </tr>
             `;
-            container.appendChild(card);
         });
 
-        // Add Member Button (Only for Leader and if < 5)
-        if (isLeader && team.members.length < 5) {
-            const addDiv = document.createElement('div');
-            addDiv.innerHTML = `
-                <button type="button" onclick="addNewMember()" class="secondary-btn" style="width: 100%; border-style: dashed;">[ + ADD OPERATIVE SLOT ]</button>
-            `;
-            container.appendChild(addDiv);
-        }
+        tableHtml += `</tbody></table>`;
+
+        container.innerHTML = tableHtml;
     }
 
     // --- Actions ---
@@ -126,105 +127,69 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMembers();
     };
 
-    window.logout = function () {
-        localStorage.removeItem('current_team_id');
-        window.location.href = 'index.html';
-    };
 
-    window.removeMember = function (index) {
-        if (!confirm('Disavow this operative?')) return;
 
-        // Remove from array
-        team.members.splice(index, 1);
-        saveToStorage(); // Save via API
-        renderMembers(); // Re-render local state
-    };
+    // Change Password Logic (OTP Based)
+    window.changePassword = async function () {
+        if (!teamId) return;
 
-    window.addNewMember = function () {
-        team.members.push({
-            name: '', age: '', email: '', phone: '', college: '', address: '', role: 'MEMBER'
-        });
-        saveToStorage(); // Save via API (or just render and let user save explicitly? Preference: Explicit save usually better, but requirements implies 'dynamic'. I'll call saveToStorage which now API calls.)
-        renderMembers();
-    };
+        // Step 1: Ask for Old Password
+        const oldPass = prompt("ENTER YOUR OLD PASSWORD TO VERIFY IDENTITY:");
+        if (!oldPass) return;
 
-    function saveToStorage() {
-        // Current Logic: Full overwrite of members for this team
-        // API: POST /api/team/:id/update
-        fetch(`/api/team/${teamId}/update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ members: team.members }) // Send only members array as per server requirement
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("TEAM DATA SYNCHRONIZED.");
-                } else {
-                    alert("UPDATE FAILED: " + (data.error || 'Unknown Error'));
-                }
-            })
-            .catch(err => alert("NETWORK ERROR: " + err.message));
-    }
+        // Step 2: Request OTP
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/request-password-reset`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ teamId, oldPassword: oldPass })
+            });
+            const data = await res.json();
 
-    // Change Password Function
-    window.changePassword = function () {
-        const newPass = prompt("ENTER NEW PASSWORD:");
-        if (!newPass) return; // Cancelled
+            if (!res.ok) {
+                alert("ERROR: " + (data.error || "Failed to verify identity"));
+                return;
+            }
 
-        if (newPass.length < 6) {
-            alert("ERROR: Password must be at least 6 characters.");
-            return;
+            alert(data.message); // "OTP sent to leader's email..."
+
+            // Step 3: Verify OTP & Reset
+            const otp = prompt("ENTER THE OTP SENT TO YOUR LEADER'S EMAIL:");
+            if (!otp) return;
+
+            const newPass = prompt("ENTER YOUR NEW PASSWORD:");
+            if (!newPass) return;
+
+            const res2 = await fetch(`${API_BASE_URL}/api/auth/verify-reset-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ teamId, otp, newPassword: newPass })
+            });
+            const data2 = await res2.json();
+
+            if (data2.success) {
+                alert("PASSWORD UPDATED SUCCESSFULLY! PLEASE LOGIN AGAIN.");
+                window.logout();
+            } else {
+                alert("ERROR: " + data2.error);
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("NETWORK/SYSTEM ERROR");
         }
-
-        fetch('/api/auth/reset-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ teamId: teamId, newPassword: newPass })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("PASSWORD UPDATED SUCCESSFULLY.");
-                } else {
-                    alert("ERROR: " + data.error);
-                }
-            })
-            .catch(err => alert("NETWORK ERROR: " + err.message));
     };
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        // Harvest inputs for updates
-        team.members.forEach((member, index) => {
-            const nameIn = document.querySelector(`input[name="member_${index}_name"]`);
-            if (nameIn) member.name = nameIn.value;
-            const ageIn = document.querySelector(`input[name="member_${index}_age"]`);
-            if (ageIn) member.age = ageIn.value;
-            const emailIn = document.querySelector(`input[name="member_${index}_email"]`);
-            if (emailIn) member.email = emailIn.value;
-            const phoneIn = document.querySelector(`input[name="member_${index}_phone"]`);
-            if (phoneIn) member.phone = phoneIn.value;
-            const collIn = document.querySelector(`input[name="member_${index}_college"]`);
-            if (collIn) member.college = collIn.value;
-            const addrIn = document.querySelector(`input[name="member_${index}_address"]`);
-            if (addrIn) member.address = addrIn.value;
-        });
-
-        saveToStorage();
-
-
-
-        const btn = document.querySelector('.jack-in-btn');
-        const originalText = btn.innerText;
-        btn.innerText = "[ SAVED ]";
-        btn.style.color = "var(--neon-green)";
-        setTimeout(() => {
-            btn.innerText = originalText;
-            btn.style.color = "";
-        }, 1500);
-    });
 
     // Initial Render
     renderMembers();
 });
+
+
+
+
+// Global Logout Function
+window.logout = function () {
+    localStorage.removeItem('current_team_id');
+    localStorage.removeItem('current_team_name');
+    window.location.href = 'login.html';
+};
