@@ -18,7 +18,9 @@
         .admin-container {
             padding: 20px;
             max-width: 1400px;
-            margin: 480px auto 0;
+            /* margin: 480px auto 0;  <-- REMOVED INLINE, HANDLED IN CSS */
+            margin: 0 auto;
+            margin-top: 480px; /* Default Desktop */
             position: relative;
             z-index: 10;
         }
@@ -358,24 +360,39 @@
                 PRINT / SAVE PDF ]</button>
         </div>
 
-        <table id="teams-table" style="background: rgba(0,0,0,0.8);">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Team Name</th>
-                    <th>Event</th>
-                    <th>UTR / Trans ID</th>
-                    <th>Payment Proof</th>
-                    <th>Leader Details</th>
-                    <th>All Members</th>
-                    <th>Password</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will load here -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="teams-table" style="background: rgba(0,0,0,0.8);">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Team Name</th>
+                        <th>Event</th>
+                        <th>UTR / Trans ID</th>
+                        <th>Payment Proof</th>
+                        <th>Leader Details</th>
+                        <th>All Members</th>
+                        <th>Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will load here -->
+                </tbody>
+            </table>
+        </div>
         <script>
+            // Define global API Base URL
+            // Logic:
+            // 1. If file:// protocol, use localhost:3000
+            // 2. If running on localhost or 127.0.0.1 (e.g. Live Server port 5500), use localhost:3000
+            // 3. If running on a public tunnel (loca.lt, ngrok), use relative path ''
+            const isLocal = window.location.protocol === 'file:' || 
+                            window.location.hostname === 'localhost' || 
+                            window.location.hostname === '127.0.0.1';
+            
+            // If on localhost:3000 (Express served), relative is fine, but absolute localhost:3000 is also fine.
+            const API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
+            console.log("Admin Panel API_BASE_URL:", API_BASE_URL);
+
             async function checkAdmin() {
                 const p = document.getElementById('admin-pass').value.trim();
                 const btn = document.querySelector('.login-btn');
@@ -385,12 +402,20 @@
                 btn.disabled = true;
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/admin/login', {
+                    const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
                          method: 'POST',
                          headers: { 'Content-Type': 'application/json' },
                          body: JSON.stringify({ password: p })
                     });
-                    const data = await res.json();
+                     
+                    const text = await res.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch(e) {
+                        console.error("Non-JSON Response:", text);
+                        throw new Error(`Server returned non-JSON: ${text.substring(0, 50)}...`);
+                    }
                     
                     if (data.success) {
                         document.getElementById('login-overlay').style.display = 'none';
@@ -399,7 +424,7 @@
                         alert('ACCESS DENIED: ' + (data.error || 'Invalid Credentials'));
                     }
                 } catch (e) {
-                    alert('CONNECTION ERROR');
+                    alert('CONNECTION ERROR: ' + e.message);
                     console.error(e);
                 } finally {
                     btn.innerText = originalText;
@@ -414,7 +439,6 @@
             }
 
             async function loadData() {
-                const API_BASE_URL = 'http://localhost:3000';
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/admin/data`);
                     window.teamsData = await res.json();
@@ -494,7 +518,6 @@
                 const team = window.teamsData.find(t => t.team_id === teamId);
                 if (!team) return;
 
-                const API_BASE_URL = 'http://localhost:3000';
                 const proofUrl = team.payment_proof ? `${API_BASE_URL}${team.payment_proof}` : null;
 
                 document.getElementById('verify-team-id').innerText = team.team_id;
@@ -528,7 +551,7 @@
                 btn.disabled = true;
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/admin/verify_payment', {
+                    const res = await fetch(`${API_BASE_URL}/api/admin/verify_payment`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ teamId })
@@ -618,7 +641,7 @@
                 const payload = { teamId, name, event, password, members };
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/admin/update_team', {
+                    const res = await fetch(`${API_BASE_URL}/api/admin/update_team`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)

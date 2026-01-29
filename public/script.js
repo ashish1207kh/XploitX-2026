@@ -73,6 +73,18 @@ window.alert = function (msg) {
 };
 
 setInterval(draw, 35);
+// Define Globals
+// Logic:
+// 1. If file:// protocol, use localhost:3000
+// 2. If running on localhost or 127.0.0.1 (e.g. Live Server port 5500), use localhost:3000
+// 3. If running on a public tunnel (loca.lt, ngrok), use relative path ''
+const isLocal = window.location.protocol === 'file:' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
+const API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
+console.log("Global API_BASE_URL:", API_BASE_URL);
+
 // Form handling
 const regForm = document.getElementById('team-form');
 if (regForm) {
@@ -98,9 +110,6 @@ if (regForm) {
     const cancelBtn = document.getElementById('cancel-payment-btn');
     const amountDisplay = document.getElementById('payment-amount-display');
     const submitBtn = regForm.querySelector('button[type="submit"]');
-
-    // Define Backend URL
-    const API_BASE_URL = 'http://localhost:3000'; // Hardcoded for local development
 
     // Run Init
     function init() {
@@ -194,6 +203,12 @@ if (regForm) {
                 return;
             }
 
+            // Enforce Email Verification
+            if (regForm.dataset.emailVerified !== "true") {
+                alert("Please verify the Team Leader's Email ID using the [ VERIFY ] button before proceeding.");
+                return;
+            }
+
             submitBtn.innerHTML = "[ INITIATING UPLOAD... ]";
             submitBtn.disabled = true;
 
@@ -218,6 +233,29 @@ if (regForm) {
                     if (hasData) members.push(m);
                 });
 
+                // Check for Duplicate Emails within the Team
+                const emails = members.map(m => m.email.toLowerCase().trim());
+
+                // Validate Email Format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                for (let i = 0; i < emails.length; i++) {
+                    if (!emailRegex.test(emails[i])) {
+                        alert(`Invalid email address found: ${members[i].email}. Please enter a valid email.`);
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                }
+
+                const uniqueEmails = new Set(emails);
+                if (uniqueEmails.size !== emails.length) {
+                    alert("Duplicate email IDs found. Each member must have a unique email address.");
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                    return; // Stop submission
+
+                }
+
                 const payload = {
                     teamName,
                     email: members[0].email,
@@ -233,7 +271,14 @@ if (regForm) {
                     body: JSON.stringify(payload)
                 });
 
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("Non-JSON Response:", text);
+                    throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+                }
 
                 if (res.ok && data.teamId) {
                     // Calculate Total Amount based on head count if applicable
@@ -273,7 +318,6 @@ function initPaymentPage() {
     const teamId = urlParams.get('teamId');
     const amount = urlParams.get('amount');
     const eventName = urlParams.get('event'); // Get event name
-    const API_BASE_URL = 'http://localhost:3000';
 
     const amountDisplay = document.getElementById('payment-amount-display');
     const confirmBtn = document.getElementById('confirm-payment-btn');
@@ -371,7 +415,7 @@ function initPaymentPage() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        showCustomAlert("Proof has been submitted successfully.\nWe will contact you shortly.", () => {
+                        showCustomAlert("Payment proof submitted successfully!\n\nPlease check your Team Leader's Email for Login Credentials to access the Dashboard.", () => {
                             window.location.href = 'index.html';
                         });
                     } else {

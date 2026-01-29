@@ -1949,7 +1949,8 @@
 
             /* LOGO */
             .logo-img {
-                height: 120px !important;
+                height: 80px !important;
+                margin-top: 0 !important;
             }
 
             /* NAVIGATION */
@@ -1980,12 +1981,12 @@
             }
 
             .nav-links a {
-                font-size: 1.4rem;
-                /* Larger */
-                width: 85%;
+                font-size: 1.2rem;
+                /* Smaller to fit all */
+                width: 90%;
                 text-align: center;
-                padding: 18px !important;
-                /* Larger touch target */
+                padding: 12px !important;
+                /* Reduced padding */
                 background: rgba(0, 40, 0, 0.7) !important;
                 border: 1px solid var(--neon-green) !important;
                 margin-bottom: 8px;
@@ -2092,9 +2093,20 @@
             }
 
             /* ADMIN SPECIFIC */
+            /* ADMIN SPECIFIC */
             .admin-container {
-                margin-top: 45% !important;
+                margin-top: 220px !important; /* Adjusted for mobile header height */
                 padding: 10px !important;
+            }
+
+            .table-responsive {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            }
+
+            table {
+                min-width: 800px; /* Force table to retain width so it scrolls */
             }
         }
 

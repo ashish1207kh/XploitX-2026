@@ -11,7 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerText = "[ VERIFYING... ]";
         btn.disabled = true;
 
-        const API_BASE_URL = 'http://localhost:3000'; // Hardcoded for local development
+        // Logic:
+        // 1. If file:// protocol, use localhost:3000
+        // 2. If running on localhost or 127.0.0.1 (e.g. Live Server port 5500), use localhost:3000
+        // 3. If running on a public tunnel (loca.lt, ngrok), use relative path ''
+        const isLocal = window.location.protocol === 'file:' ||
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1';
+
+        const API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
 
         setTimeout(() => {
             fetch(`${API_BASE_URL}/api/auth/login`, {

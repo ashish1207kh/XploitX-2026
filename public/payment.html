@@ -38,7 +38,7 @@
                 <hr style="border-color: var(--dark-green); margin: 10px 0;">
 
                 <p style="margin-bottom: 5px; color: #aaa;">UTR / TRANSACTION NUMBER:</p>
-                <input type="text" id="utr-number" placeholder="Enter UPI Ref ID / UTR"
+                <input type="text" id="utr-number" placeholder="Enter UPI Ref ID / UTR" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                     style="width: 100%; padding: 10px; margin-bottom: 15px; background: #111; border: 1px solid var(--neon-green); color: #fff; font-family: 'Share Tech Mono';">
 
                 <p style="margin-bottom: 5px; color: #aaa;">UPLOAD PAYMENT PROOF:</p>

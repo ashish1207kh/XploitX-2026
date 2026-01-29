@@ -159,7 +159,17 @@
                                     </div>
                                     <div class="form-group">
                                         <label>EMAIL ID</label>
-                                        <input type="email" name="member1_email" maxlength="30" required>
+                                        <div style="display: flex; gap: 10px;">
+                                            <input type="email" name="member1_email" id="leader-email-input" maxlength="30" required style="flex-grow: 1;">
+                                            <button type="button" id="verify-email-btn" style="background: var(--neon-green); color: black; border: none; font-weight: bold; padding: 0 15px; cursor: pointer; white-space: nowrap;">[ VERIFY ]</button>
+                                        </div>
+                                        <div id="otp-section" style="display: none; margin-top: 10px;">
+                                            <input type="text" id="email-otp-input" placeholder="Enter OTP sent to email" style="width: 100%; padding: 8px; background: #111; border: 1px dashed var(--neon-green); color: white; margin-bottom: 5px;">
+                                            <button type="button" id="confirm-otp-btn" style="width: 100%; background: #FFA500; border: none; padding: 5px; font-weight: bold; cursor: pointer;">[ CONFIRM OTP ]</button>
+                                        </div>
+                                        <div id="email-verified-badge" style="display: none; color: var(--neon-green); font-size: 0.9rem; margin-top: 5px; font-weight: bold;">
+                                            <i class="fas fa-check-circle"></i> EMAIL VERIFIED
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label>PHONE NUMBER (CALLING)</label>
