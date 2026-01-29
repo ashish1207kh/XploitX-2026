@@ -78,7 +78,7 @@ const regForm = document.getElementById('team-form');
 if (regForm) {
     // Configuration
     const EVENT_CONFIG = {
-        '24 Hrs Hackathon': { min: 2, max: 4, fee: 250, perHead: true },
+        '24 Hrs Hackathon': { min: 3, max: 4, fee: 250, perHead: true },
         'paper_presentation': { min: 3, max: 3, fee: 150, perHead: false },
         'digital_forensics': { min: 2, max: 2, fee: 0, perHead: false },
         'network_defense': { min: 2, max: 2, fee: 0, perHead: false }
@@ -141,6 +141,10 @@ if (regForm) {
         if (removeMemberBtn) {
             removeMemberBtn.addEventListener('click', () => {
                 const cards = membersContainer.querySelectorAll('.member-card');
+                if (cards.length <= currentMin) {
+                    alert(`Minimum ${currentMin} members required for this event.`);
+                    return;
+                }
                 if (cards.length > 1) {
                     cards[cards.length - 1].remove();
                 }
