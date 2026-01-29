@@ -185,6 +185,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+<<<<<<< HEAD
+    // Change Password Logic (OTP Based)
+    window.changePassword = async function () {
+        if (!teamId) return;
+
+        // Step 1: Ask for Old Password
+        const oldPass = prompt("ENTER YOUR OLD PASSWORD TO VERIFY IDENTITY:");
+        if (!oldPass) return;
+
+        // Step 2: Request OTP
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/auth/request-password-reset`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ teamId, oldPassword: oldPass })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert("ERROR: " + (data.error || "Failed to verify identity"));
+                return;
+=======
     // Change Password Logic (Custom UI)
     window.changePassword = function () {
         // Remove existing modal if any
@@ -296,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) {
                 alert("Network Error");
+>>>>>>> 18888004dd36ce2cb8e8796a07a7de5be02b5eab
             }
         };
     };
