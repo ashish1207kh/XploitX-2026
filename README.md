@@ -1,4 +1,4 @@
-# MATRIX_HACK 2026
+# XploitX-2026
 
 A cyberpunk-themed website for the Matrix Hackathon 2026, featuring falling green code rain, glitch effects, terminal-style UI, countdown timer, and immersive Matrix aesthetics.
 
