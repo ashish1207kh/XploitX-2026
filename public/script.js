@@ -73,12 +73,24 @@ window.alert = function (msg) {
 };
 
 setInterval(draw, 35);
+// Define Globals
+// Logic:
+// 1. If file:// protocol, use localhost:3000
+// 2. If running on localhost or 127.0.0.1 (e.g. Live Server port 5500), use localhost:3000
+// 3. If running on a public tunnel (loca.lt, ngrok), use relative path ''
+const isLocal = window.location.protocol === 'file:' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
+const API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
+console.log("Global API_BASE_URL:", API_BASE_URL);
+
 // Form handling
 const regForm = document.getElementById('team-form');
 if (regForm) {
     // Configuration
     const EVENT_CONFIG = {
-        '24 Hrs Hackathon': { min: 3, max: 4, fee: 250, perHead: true },
+        '24 Hrs Hackathon': { min: 2, max: 4, fee: 250, perHead: true },
         'paper_presentation': { min: 3, max: 3, fee: 150, perHead: false },
         'digital_forensics': { min: 2, max: 2, fee: 0, perHead: false },
         'network_defense': { min: 2, max: 2, fee: 0, perHead: false }
@@ -99,9 +111,6 @@ if (regForm) {
     const amountDisplay = document.getElementById('payment-amount-display');
     const submitBtn = regForm.querySelector('button[type="submit"]');
 
-    // Define Backend URL
-    const API_BASE_URL = 'http://localhost:3000'; // Hardcoded for local development
-
     // Run Init
     function init() {
 
@@ -112,7 +121,7 @@ if (regForm) {
             addMemberBtn.addEventListener('click', () => {
                 const currentCount = membersContainer.querySelectorAll('.member-card').length;
                 if (currentCount >= currentMax) {
-                    alert(`Maximum ${currentMax} members allowed for this event.`);
+                    showCustomAlert(`Maximum ${currentMax} members allowed for this event.`);
                     return;
                 }
 
@@ -126,12 +135,35 @@ if (regForm) {
                 const inputs = clone.querySelectorAll('input');
                 inputs.forEach(input => {
                     input.value = '';
+
+                    // Remove duplicate ID from email input
+                    if (input.type === 'email') {
+                        input.removeAttribute('id');
+                        input.readOnly = false;
+                    }
+
                     // name format: member1_name -> member2_name
                     const nameParts = input.name.split('_');
                     if (nameParts.length > 1) {
                         input.name = `member${newIndex}_${nameParts[1]}`;
                     }
                 });
+
+                // Reset Verification State for Clone
+                const otpSection = clone.querySelector('.otp-section');
+                if (otpSection) otpSection.style.display = 'none';
+
+                const verifiedBadge = clone.querySelector('.email-verified-badge');
+                if (verifiedBadge) verifiedBadge.style.display = 'none';
+
+                const verifyBtn = clone.querySelector('.verify-email-btn');
+                if (verifyBtn) {
+                    verifyBtn.style.display = 'inline-block'; // or block
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerText = "[ VERIFY ]";
+                }
+
+                membersContainer.appendChild(clone);
 
                 membersContainer.appendChild(clone);
             });
@@ -142,7 +174,7 @@ if (regForm) {
             removeMemberBtn.addEventListener('click', () => {
                 const cards = membersContainer.querySelectorAll('.member-card');
                 if (cards.length <= currentMin) {
-                    alert(`Minimum ${currentMin} members required for this event.`);
+                    showCustomAlert(`Minimum ${currentMin} members required for this event.`);
                     return;
                 }
                 if (cards.length > 1) {
@@ -194,8 +226,21 @@ if (regForm) {
             // Validate Member Count
             const memberCount = membersContainer.querySelectorAll('.member-card').length;
             if (memberCount < currentMin) {
-                alert(`Minimum ${currentMin} members required for this event.`);
+                showCustomAlert(`Minimum ${currentMin} members required for this event.`);
                 return;
+            }
+
+            // Enforce Email Verification for ALL Members
+            let allVerified = true;
+            const memberInputs = membersContainer.querySelectorAll('.member-email-input');
+
+            for (let i = 0; i < memberInputs.length; i++) {
+                if (memberInputs[i].dataset.verified !== "true") {
+                    allVerified = false;
+                    const memberName = memberInputs[i].closest('.member-card').querySelector('h4').innerText;
+                    showCustomAlert(`Please verify the Email ID for ${memberName} before proceeding.`);
+                    return; // Stop submission
+                }
             }
 
             submitBtn.innerHTML = "[ INITIATING UPLOAD... ]";
@@ -222,6 +267,29 @@ if (regForm) {
                     if (hasData) members.push(m);
                 });
 
+                // Check for Duplicate Emails within the Team
+                const emails = members.map(m => m.email.toLowerCase().trim());
+
+                // Validate Email Format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                for (let i = 0; i < emails.length; i++) {
+                    if (!emailRegex.test(emails[i])) {
+                        showCustomAlert(`Invalid email address found: ${members[i].email}. Please enter a valid email.`);
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                }
+
+                const uniqueEmails = new Set(emails);
+                if (uniqueEmails.size !== emails.length) {
+                    showCustomAlert("Duplicate email IDs found. Each member must have a unique email address.");
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                    return; // Stop submission
+
+                }
+
                 const payload = {
                     teamName,
                     email: members[0].email,
@@ -237,7 +305,14 @@ if (regForm) {
                     body: JSON.stringify(payload)
                 });
 
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("Non-JSON Response:", text);
+                    throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+                }
 
                 if (res.ok && data.teamId) {
                     // Calculate Total Amount based on head count if applicable
@@ -254,7 +329,7 @@ if (regForm) {
 
             } catch (err) {
                 console.error(err);
-                alert("Error: " + err.message);
+                showCustomAlert("Error: " + err.message);
                 submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;
             }
@@ -277,7 +352,6 @@ function initPaymentPage() {
     const teamId = urlParams.get('teamId');
     const amount = urlParams.get('amount');
     const eventName = urlParams.get('event'); // Get event name
-    const API_BASE_URL = 'http://localhost:3000';
 
     const amountDisplay = document.getElementById('payment-amount-display');
     const confirmBtn = document.getElementById('confirm-payment-btn');
@@ -348,12 +422,12 @@ function initPaymentPage() {
             const utrInput = document.getElementById('utr-number');
 
             if (!utrInput || !utrInput.value.trim()) {
-                alert("Please enter the UTR / Transaction Number.");
+                showCustomAlert("Please enter the UTR / Transaction Number.");
                 return;
             }
 
             if (!fileInput || fileInput.files.length === 0) {
-                alert("Please upload the payment proof screenshot.");
+                showCustomAlert("Please upload the payment proof screenshot.");
                 return;
             }
 
@@ -375,18 +449,18 @@ function initPaymentPage() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        showCustomAlert("Proof has been submitted successfully.\nWe will contact you shortly.", () => {
+                        showCustomAlert("Payment proof submitted successfully!\n\nPlease check your Team Leader's Email for Login Credentials to access the Dashboard.", () => {
                             window.location.href = 'index.html';
                         });
                     } else {
-                        alert("Upload Failed: " + (data.error || "Unknown Error"));
+                        showCustomAlert("Upload Failed: " + (data.error || "Unknown Error"));
                         newConfirmBtn.innerHTML = "[ UPLOAD PROOF & FINISH ]";
                         newConfirmBtn.disabled = false;
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    alert("Network Error during upload.");
+                    showCustomAlert("Network Error during upload.");
                     newConfirmBtn.innerHTML = "[ UPLOAD PROOF & FINISH ]";
                     newConfirmBtn.disabled = false;
                 });

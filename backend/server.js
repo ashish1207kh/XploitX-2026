@@ -1,9 +1,10 @@
 const express = require('express');
-require('dotenv').config();
+const path = require('path');
+const bcrypt = require('bcrypt');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 const nodemailer = require('nodemailer');
 
 const app = express();
@@ -21,9 +22,9 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = './uploads';
+        const dir = path.join(__dirname, 'uploads');
         if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
+            fs.mkdirSync(dir, { recursive: true });
         }
         cb(null, dir);
     },
@@ -137,13 +138,102 @@ app.post('/api/admin/login', (req, res) => {
     }
 });
 
+const dns = require('dns').promises;
+
+// Helper: Validate Email Domain via Regex (Simplified for reliability)
+async function validateEmailDomain(email) {
+    const domain = email.split('@')[1];
+    if (!domain) return false;
+    // Basic structural check for domain to allow all valid common domains
+    return /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domain);
+}
+
 // Register
+const verificationOtps = {}; // { "email@com": "123456" }
+
+// Send OTP for Email Verification (Pre-Registration)
+app.post('/api/auth/send-verification-otp', async (req, res) => {
+    const { email, name } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+
+    // Validate Domain First
+    const isValidDomain = await validateEmailDomain(email);
+    if (!isValidDomain) {
+        return res.status(400).json({ error: `Invalid email domain. '${email.split('@')[1]}' does not exist.` });
+    }
+
+    // Check if email already registered
+    // Check if email already registered (as Leader)
+    const existingTeam = await new Promise((resolve) => {
+        db.get('SELECT id FROM teams WHERE email = ?', [email], (err, row) => {
+            resolve(row);
+        });
+    });
+
+    // Check if email already registered (as Member)
+    const existingMember = await new Promise((resolve) => {
+        db.get('SELECT id FROM members WHERE email = ?', [email], (err, row) => {
+            resolve(row);
+        });
+    });
+
+    if (existingTeam || existingMember) {
+        return res.status(400).json({ error: 'This email is already registered.' });
+    }
+
+
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    verificationOtps[email] = otp;
+
+    // Send Email
+    const subject = "Verify Your Email - XploitX 2k26";
+    const text = `Your verification OTP is: ${otp}`;
+    const html = `
+        <h2>Email Verification</h2>
+        <p>Hi ${name || 'There'},</p>
+        <p>Use the code below to verify your email address for XploitX 2k26 registration:</p>
+        <h1 style="color: #00FF41;">${otp}</h1>
+        <p>If you didn't request this, ignore this email.</p>
+    `;
+
+    // Only attempt to send if credentials exist, else just log it for dev
+    if (process.env.EMAIL_USER && !process.env.EMAIL_USER.includes('your-email')) {
+        const sent = await sendEmail(email, subject, text, html);
+        if (!sent) return res.status(500).json({ error: "Failed to send email. Check address." });
+    } else {
+        console.log(`[MOCK EMAIL] To: ${email}, OTP: ${otp}`);
+    }
+
+    res.json({ success: true, message: 'OTP sent to ' + email });
+});
+
+// Verify OTP Endpoint
+app.post('/api/auth/verify-email-otp', (req, res) => {
+    const { email, otp } = req.body;
+    if (verificationOtps[email] && verificationOtps[email] === otp) {
+        delete verificationOtps[email]; // Clear after use
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ error: 'Invalid OTP' });
+    }
+});
 app.post('/api/auth/register', async (req, res) => {
     console.log("[REGISTER] Request received:", req.body.teamName);
     const { teamName, email, password, event, transactionId, members } = req.body;
 
     if (!teamName || !email || !password || !members || members.length === 0) {
         return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Validate Email Domains (Prevent fake/typo domains)
+    for (const m of members) {
+        if (m.email) {
+            const isValid = await validateEmailDomain(m.email);
+            if (!isValid) {
+                return res.status(400).json({ error: `Invalid email domain: '${m.email}'. Please check the spelling or use a valid provider.` });
+            }
+        }
     }
 
     // Generate temporary ID for initial insertion
@@ -261,6 +351,14 @@ Prathyusha Engineering College`;
 
     } catch (err) {
         console.error(err);
+        if (err.message && err.message.includes('UNIQUE constraint failed')) {
+            if (err.message.includes('teams.email')) {
+                return res.status(400).json({ error: 'This Team Leader Email ID is already registered.' });
+            } else if (err.message.includes('teams.name')) {
+                return res.status(400).json({ error: 'Team Name is already taken.' });
+            }
+            return res.status(400).json({ error: 'Duplicate data found (Email/Team Name) or already registered.' });
+        }
         return res.status(500).json({ error: err.message });
     }
 });
@@ -638,6 +736,7 @@ app.post('/api/admin/verify_payment', async (req, res) => {
 
 // Admin Update Team Endpoint
 app.post('/api/admin/update_team', async (req, res) => {
+    console.log("[ADMIN UPDATE] Request received", req.body);
     const { teamId, name, event, password, members } = req.body;
 
     if (!teamId || !members) {
@@ -660,10 +759,9 @@ app.post('/api/admin/update_team', async (req, res) => {
         // In the admin panel, we likely see the hash. If the admin edits it, they are sending a new Plaintext password.
         // We should assume if it looks like a hash ($2b$), they didn't change it. If it doesn't, it is a new password.
 
+        // If password is changed, update it directly (Plain Text as requested)
+        // We no longer hash it.
         let finalPassword = password;
-        if (password && !password.startsWith('$2b$')) {
-            finalPassword = await bcrypt.hash(password, 10);
-        }
 
         // Update Team Info
         await new Promise((resolve, reject) => {
@@ -692,13 +790,15 @@ app.post('/api/admin/update_team', async (req, res) => {
 
         for (let i = 0; i < members.length; i++) {
             const m = members[i];
-            // Infer role if not provided, though admin should probably provide it or we preserve it? 
-            // In the admin editor, we will send the role back.
+            // Infer role if not provided
             const role = m.role || (i === 0 ? 'LEADER' : 'MEMBER');
 
+            // Map frontend 'address' (or 'district') to 'district' column
+            const dist = m.address || m.district;
+
             await runQuery(
-                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, address, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.address, role]
+                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, district, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, dist, role]
             );
         }
 

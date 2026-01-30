@@ -18,7 +18,9 @@
         .admin-container {
             padding: 20px;
             max-width: 1400px;
-            margin: 480px auto 0;
+            /* margin: 480px auto 0;  <-- REMOVED INLINE, HANDLED IN CSS */
+            margin: 0 auto;
+            margin-top: 480px; /* Default Desktop */
             position: relative;
             z-index: 10;
         }
@@ -358,24 +360,82 @@
                 PRINT / SAVE PDF ]</button>
         </div>
 
-        <table id="teams-table" style="background: rgba(0,0,0,0.8);">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Team Name</th>
-                    <th>Event</th>
-                    <th>UTR / Trans ID</th>
-                    <th>Payment Proof</th>
-                    <th>Leader Details</th>
-                    <th>All Members</th>
-                    <th>Password</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will load here -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="teams-table" style="background: rgba(0,0,0,0.8);">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Team Name</th>
+                        <th>Event</th>
+                        <th>UTR / Trans ID</th>
+                        <th>Payment Proof</th>
+                        <th>Leader Details</th>
+                        <th>All Members</th>
+                        <th>Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will load here -->
+                </tbody>
+            </table>
+        </div>
         <script>
+            // Define global API Base URL
+            // Logic:
+            // 1. If file:// protocol, use localhost:3000
+            // 2. If running on localhost or 127.0.0.1 (e.g. Live Server port 5500), use localhost:3000
+            // 3. If running on a public tunnel (loca.lt, ngrok), use relative path ''
+            const isLocal = window.location.protocol === 'file:' || 
+                            window.location.hostname === 'localhost' || 
+                            window.location.hostname === '127.0.0.1';
+            
+            // If on localhost:3000 (Express served), relative is fine, but absolute localhost:3000 is also fine.
+            const API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
+            console.log("Admin Panel API_BASE_URL:", API_BASE_URL);
+
+            // --- CUSTOM ALERT IMPLEMENTATION (LOCAL OVERRIDE) ---
+            window.currentAlertCallback = null;
+
+            window.closeCustomAlert = function () {
+                const overlay = document.getElementById('custom-alert-overlay');
+                if(overlay) overlay.style.display = 'none';
+                if (window.currentAlertCallback) {
+                    window.currentAlertCallback();
+                    window.currentAlertCallback = null;
+                }
+            };
+
+            window.showCustomAlert = function (message, callback = null) {
+                window.currentAlertCallback = callback;
+                let overlay = document.getElementById('custom-alert-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'custom-alert-overlay';
+                    overlay.style.cssText = `
+                        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                        background: rgba(0,0,0,0.85); z-index: 100000;
+                        display: flex; justify-content: center; align-items: center;
+                    `;
+                    overlay.innerHTML = `
+                        <div style="background: #000; border: 2px solid var(--neon-green); padding: 30px; width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);">
+                            <h2 style="color: var(--neon-green); border-bottom: 1px solid var(--dark-green); padding-bottom: 10px; margin-bottom: 20px;">> SYSTEM_ALERT</h2>
+                            <div id="custom-alert-msg" style="color: #fff; margin-bottom: 20px; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;"></div>
+                            <button onclick="window.closeCustomAlert()" class="jack-in-btn" style="width: 100%;">[ ACKNOWLEDGE ]</button>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                }
+                const msgDiv = document.getElementById('custom-alert-msg');
+                if(msgDiv) msgDiv.innerText = message;
+                overlay.style.display = 'flex';
+            };
+
+            // Override default alert
+            window.alert = function (msg) {
+                window.showCustomAlert(msg);
+            };
+            // ----------------------------------------------------
+
             async function checkAdmin() {
                 const p = document.getElementById('admin-pass').value.trim();
                 const btn = document.querySelector('.login-btn');
@@ -385,21 +445,29 @@
                 btn.disabled = true;
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/admin/login', {
+                    const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
                          method: 'POST',
                          headers: { 'Content-Type': 'application/json' },
                          body: JSON.stringify({ password: p })
                     });
-                    const data = await res.json();
+                     
+                    const text = await res.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch(e) {
+                        console.error("Non-JSON Response:", text);
+                        throw new Error(`Server returned non-JSON: ${text.substring(0, 50)}...`);
+                    }
                     
                     if (data.success) {
                         document.getElementById('login-overlay').style.display = 'none';
                         loadData();
                     } else {
-                        alert('ACCESS DENIED: ' + (data.error || 'Invalid Credentials'));
+                        showCustomAlert('ACCESS DENIED: ' + (data.error || 'Invalid Credentials'));
                     }
                 } catch (e) {
-                    alert('CONNECTION ERROR');
+                    showCustomAlert('CONNECTION ERROR: ' + e.message);
                     console.error(e);
                 } finally {
                     btn.innerText = originalText;
@@ -414,7 +482,6 @@
             }
 
             async function loadData() {
-                const API_BASE_URL = 'http://localhost:3000';
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/admin/data`);
                     window.teamsData = await res.json();
@@ -454,8 +521,16 @@
                     }
 
                     let membersHtml = '';
-                    t.members.forEach(m => {
-                        membersHtml += `<div>- ${m.name} (${m.role})</div>`;
+                    t.members.forEach((m, idx) => {
+                         membersHtml += `
+                            <div style="border-bottom:1px dashed #333; margin-bottom:5px; padding-bottom:5px; font-size: 0.85em;">
+                                <strong style="color:#00FF41;">${m.name}</strong> <span style="color:#aaa;">(${m.role})</span><br>
+                                <span style="color:#ddd;">
+                                    Ph: ${m.phone || 'N/A'} | Age: ${m.age || 'N/A'}<br>
+                                    Email: <span style="color:#00e5ff;">${m.email || 'N/A'}</span><br>
+                                    Dist: ${m.district || m.address || 'N/A'} | Col: ${m.college || 'N/A'}
+                                </span>
+                            </div>`;
                     });
 
                     // Verification Button Logic
@@ -481,7 +556,9 @@
                         ${leader ? (leader.whatsapp || 'N/A') : ''} ${waLink}
                     </td>
                     <td class="member-list">${membersHtml}</td>
-                    <td>${t.password}</td>
+                    <td title="${t.password}">
+                        ${t.password && t.password.length > 15 ? t.password.substring(0, 15) + '...' : t.password}
+                    </td>
                     <td style="text-align:center;">${checkBtnHtml}</td>
                     <td><button onclick="openEditModal('${t.team_id}')" style="background:#003300; color:#0f0; border:1px solid #0f0; padding:5px; cursor:pointer;">[ EDIT ]</button></td>
                 `;
@@ -494,7 +571,6 @@
                 const team = window.teamsData.find(t => t.team_id === teamId);
                 if (!team) return;
 
-                const API_BASE_URL = 'http://localhost:3000';
                 const proofUrl = team.payment_proof ? `${API_BASE_URL}${team.payment_proof}` : null;
 
                 document.getElementById('verify-team-id').innerText = team.team_id;
@@ -528,7 +604,7 @@
                 btn.disabled = true;
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/admin/verify_payment', {
+                    const res = await fetch(`${API_BASE_URL}/api/admin/verify_payment`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ teamId })
@@ -536,14 +612,14 @@
                     const data = await res.json();
                     
                     if (data.success) {
-                        alert("PAYMENT VERIFIED & EMAIL SENT!");
+                        showCustomAlert("PAYMENT VERIFIED & EMAIL SENT!");
                         closeVerifyModal();
                         loadData(); 
                     } else {
-                        alert("ERROR: " + data.error);
+                        showCustomAlert("ERROR: " + data.error);
                     }
                 } catch(e) {
-                    alert("Network Error");
+                    showCustomAlert("Network Error");
                 } finally {
                     btn.innerHTML = "[ VERIFY PAYMENT & SEND MAIL ]";
                     btn.disabled = false;
@@ -574,12 +650,12 @@
                         <div style="font-weight:bold; color:var(--neon-green); margin-bottom:5px;">MEMBER ${idx+1} (${m.role})</div>
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
                             <input type="text" class="edit-m-name" placeholder="Name" value="${m.name || ''}">
-                            <input type="number" class="edit-m-age" placeholder="Age" value="${m.age || ''}">
-                            <input type="text" class="edit-m-email" placeholder="Email" value="${m.email || ''}">
-                            <input type="text" class="edit-m-phone" placeholder="Phone" value="${m.phone || ''}">
-                            <input type="text" class="edit-m-whatsapp" placeholder="WhatsApp" value="${m.whatsapp || ''}">
+                            <input type="text" class="edit-m-age" placeholder="Age" maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="${m.age || ''}">
+                            <input type="email" class="edit-m-email" placeholder="Email" maxlength="30" value="${m.email || ''}">
+                            <input type="text" class="edit-m-phone" placeholder="Phone" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="${m.phone || ''}">
+                            <input type="text" class="edit-m-whatsapp" placeholder="WhatsApp" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="${m.whatsapp || ''}">
                             <input type="text" class="edit-m-college" placeholder="College" value="${m.college || ''}">
-                            <input type="text" class="edit-m-address" placeholder="Address" value="${m.address || ''}">
+                            <input type="text" class="edit-m-district" placeholder="District" maxlength="40" value="${m.district || ''}">
                             <input type="hidden" class="edit-m-role" value="${m.role || 'MEMBER'}">
                         </div>
                     `;
@@ -594,6 +670,14 @@
             }
 
             async function saveEditChanges() {
+                const btn = document.getElementById('save-changes-btn');
+                const originalText = btn ? btn.innerText : "[ SAVE CHANGES ]";
+                if(btn) {
+                    btn.innerText = "[ SAVING... ]";
+                    btn.disabled = true;
+                }
+
+                console.log("Saving changes...");
                 const teamId = document.getElementById('edit-team-db-id').value;
                 const name = document.getElementById('edit-team-name').value;
                 const event = document.getElementById('edit-team-event').value;
@@ -602,23 +686,32 @@
                 const memberDivs = document.querySelectorAll('#edit-members-container > div');
                 const members = [];
 
-                memberDivs.forEach(div => {
-                    members.push({
-                        name: div.querySelector('.edit-m-name').value,
-                        age: div.querySelector('.edit-m-age').value,
-                        email: div.querySelector('.edit-m-email').value,
-                        phone: div.querySelector('.edit-m-phone').value,
-                        whatsapp: div.querySelector('.edit-m-whatsapp').value,
-                        college: div.querySelector('.edit-m-college').value,
-                        address: div.querySelector('.edit-m-address').value,
-                        role: div.querySelector('.edit-m-role').value
+                try {
+                    memberDivs.forEach(div => {
+                        members.push({
+                            name: div.querySelector('.edit-m-name').value,
+                            age: div.querySelector('.edit-m-age').value,
+                            email: div.querySelector('.edit-m-email').value,
+                            phone: div.querySelector('.edit-m-phone').value,
+                            whatsapp: div.querySelector('.edit-m-whatsapp').value,
+                            college: div.querySelector('.edit-m-college').value,
+                            district: div.querySelector('.edit-m-district').value,
+                            role: div.querySelector('.edit-m-role').value
+                        });
                     });
-                });
+                } catch(err) {
+                    console.error("Error gathering member data:", err);
+                    if(window.showCustomAlert) showCustomAlert("Client Error: " + err.message);
+                    else alert("Client Error: " + err.message);
+                    if(btn) { btn.innerText = originalText; btn.disabled = false; }
+                    return;
+                }
 
                 const payload = { teamId, name, event, password, members };
+                console.log("Payload:", payload);
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/admin/update_team', {
+                    const res = await fetch(`${API_BASE_URL}/api/admin/update_team`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -626,14 +719,29 @@
                     const data = await res.json();
                     
                     if (data.success) {
-                        alert("UPDATED SUCCESSFULLY");
-                        closeEditModal();
-                        loadData(); // Reload table
+                        if(window.showCustomAlert) {
+                            showCustomAlert("Success: The details updated successfully", () => {
+                                closeEditModal();
+                                loadData(); // Reload table
+                            });
+                        } else {
+                            alert("Success: The details updated successfully");
+                            closeEditModal();
+                            loadData();
+                        }
                     } else {
-                        alert("ERROR: " + data.error);
+                        if(window.showCustomAlert) showCustomAlert("ERROR: " + data.error);
+                        else alert("ERROR: " + data.error);
                     }
                 } catch (e) {
-                    alert("NETWORK ERROR");
+                    console.error("Save Network Error:", e);
+                    if(window.showCustomAlert) showCustomAlert("NETWORK ERROR: " + e.message);
+                    else alert("NETWORK ERROR: " + e.message);
+                } finally {
+                    if(btn) {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
                 }
             }
 
@@ -717,7 +825,7 @@
             
             <div style="margin-top:30px; text-align:right; border-top: 1px solid #333; padding-top: 20px; display:flex; justify-content:flex-end; gap:20px;">
                  <button onclick="closeEditModal()" style="background:transparent; color:#ff3333; border:1px solid #ff3333; padding:10px 20px; cursor:pointer;">[ CANCEL ]</button>
-                 <button onclick="saveEditChanges()" style="background:var(--neon-green); color:#000; border:none; padding:10px 20px; font-weight:bold; cursor:pointer;">[ SAVE CHANGES ]</button>
+                 <button id="save-changes-btn" onclick="saveEditChanges()" style="background:var(--neon-green); color:#000; border:none; padding:10px 20px; font-weight:bold; cursor:pointer;">[ SAVE CHANGES ]</button>
             </div>
         </div>
     </div>

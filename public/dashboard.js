@@ -8,7 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaderControls = document.getElementById('leader-controls');
 
     // Find Team
-    const API_BASE_URL = 'http://localhost:3000';
+    // Logic:
+    // 1. If file:// protocol, use localhost:3000
+    // 2. If running on localhost or 127.0.0.1 (e.g. Live Server port 5500), use localhost:3000
+    // 3. If running on a public tunnel (loca.lt, ngrok), use relative path ''
+    const isLocal = window.location.protocol === 'file:' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+
+    const API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
 
     // Load Team Data via API
     fetch(`${API_BASE_URL}/api/team/${teamId}`)
@@ -16,10 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             if (data.error) {
                 if (data.error === 'Team not found') {
-                    alert('Team not found. Logging out.');
-                    window.logout();
+                    showCustomAlert('Team not found. Logging out.', () => { window.logout(); });
                 } else {
-                    alert('Error loading data: ' + data.error);
+                    showCustomAlert('Error loading data: ' + data.error);
                 }
                 return;
             }
@@ -158,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td style="padding: 10px;">${member.phone || '-'}</td>
                     <td style="padding: 10px;">${member.whatsapp || '-'}</td>
                     <td style="padding: 10px;">${member.college || '-'}</td>
-                    <td style="padding: 10px;">${member.district || '-'}</td>
+                    <td style="padding: 10px;">${member.district || member.address || '-'}</td>
                 </tr>
             `;
         });
@@ -177,28 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-<<<<<<< HEAD
-    // Change Password Logic (OTP Based)
-    window.changePassword = async function () {
-        if (!teamId) return;
-
-        // Step 1: Ask for Old Password
-        const oldPass = prompt("ENTER YOUR OLD PASSWORD TO VERIFY IDENTITY:");
-        if (!oldPass) return;
-
-        // Step 2: Request OTP
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/auth/request-password-reset`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ teamId, oldPassword: oldPass })
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-                alert("ERROR: " + (data.error || "Failed to verify identity"));
-                return;
-=======
     // Change Password Logic (Custom UI)
     window.changePassword = function () {
         // Remove existing modal if any
@@ -215,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         modal.innerHTML = `
-            <div style="background: #000; border: 2px solid var(--neon-green); padding: 30px; width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);">
+            <div style="background: #000; border: 2px solid var(--neon-green); padding: 30px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);">
                 <h2 style="color: var(--neon-green); border-bottom: 1px solid var(--dark-green); padding-bottom: 10px; margin-bottom: 20px;">> CHANGE_PASSWORD</h2>
                 
                 <!-- Stage 1: Old Password -->
@@ -235,7 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- Stage 3: New Password -->
                 <div id="pwd-stage-3" style="display: none;">
                     <p style="color: var(--neon-yellow); margin-bottom: 15px;">Set New Password</p>
-                    <input type="text" id="new-pass-input" placeholder="Enter New Password" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 15px; text-align: center;">
+                    <input type="text" id="new-pass-input" placeholder="Enter New Password" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 5px; text-align: center;">
+                    <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">Password must contain letters, numbers, and symbol characters.</p>
                     <button id="set-new-pass-btn" class="jack-in-btn" style="width: 100%;">[ UPDATE PASSWORD ]</button>
                 </div>
 
@@ -247,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Bind Events
         document.getElementById('verify-old-btn').onclick = async () => {
             const oldPass = document.getElementById('old-pass-input').value;
-            if (!oldPass) return alert("Please enter your old password");
+            if (!oldPass) return showCustomAlert("Please enter your old password");
 
             const btn = document.getElementById('verify-old-btn');
             btn.innerText = "[ CHECKING... ]";
@@ -262,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
 
                 if (!res.ok) {
-                    alert(data.error || "Verification Failed");
+                    showCustomAlert(data.error || "Verification Failed");
                     btn.innerText = "[ VERIFY ]";
                     btn.disabled = false;
                     return;
@@ -272,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('pwd-stage-2').style.display = 'block';
                 document.getElementById('otp-msg').innerText = data.message;
             } catch (e) {
-                alert("Network Error");
+                showCustomAlert("Network Error");
                 btn.innerText = "[ VERIFY ]";
                 btn.disabled = false;
             }
@@ -284,14 +270,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('pwd-stage-2').style.display = 'none';
                 document.getElementById('pwd-stage-3').style.display = 'block';
             } else {
-                alert("Please enter OTP");
+                showCustomAlert("Please enter OTP");
             }
         };
 
         document.getElementById('set-new-pass-btn').onclick = async () => {
             const otp = document.getElementById('otp-input').value;
             const newPass = document.getElementById('new-pass-input').value;
-            if (!newPass) return alert("Please enter new password");
+            if (!newPass) return showCustomAlert("Please enter new password");
+
+            // Password Complexity Validation
+            const hasLetter = /[a-zA-Z]/.test(newPass);
+            const hasNumber = /[0-9]/.test(newPass);
+            const hasSpecial = /[^a-zA-Z0-9]/.test(newPass);
+
+            if (!hasLetter || !hasNumber || !hasSpecial) {
+                showCustomAlert("Password should contain letters, numbers, and special characters.");
+                return;
+            }
 
             try {
                 const res = await fetch(`${API_BASE_URL}/api/auth/verify-reset-otp`, {
@@ -306,11 +302,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         window.logout();
                     });
                 } else {
-                    alert("ERROR: " + data.error);
+                    showCustomAlert("ERROR: " + data.error);
                 }
             } catch (e) {
-                alert("Network Error");
->>>>>>> 18888004dd36ce2cb8e8796a07a7de5be02b5eab
+                showCustomAlert("Network Error");
             }
         };
     };
