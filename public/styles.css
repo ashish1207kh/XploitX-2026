@@ -747,7 +747,7 @@
 
         .logo-marquee-content {
             display: inline-block;
-            animation: marqueeScroll 30s linear infinite;
+            animation: marqueeScroll 20s linear infinite;
         }
 
         .logo-marquee-content img {
@@ -774,8 +774,9 @@
         }
 
         .news-marquee-content {
-            display: inline-block;
-            animation: marqueeScroll 50s linear infinite;
+            display: flex;
+            width: max-content;
+            animation: marqueeScroll 300s linear infinite;
         }
 
         .news-marquee-content a {
