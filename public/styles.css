@@ -791,7 +791,7 @@
             /* Extra Bold */
             letter-spacing: 3px;
             text-transform: uppercase;
-            margin-right: 50px;
+            margin-right: 0px;
             text-shadow: 0 0 8px #00FFFF, 0 0 15px rgba(0, 255, 255, 0.4);
             transition: all 0.3s;
         }
@@ -1322,7 +1322,7 @@
             }
 
             .logo-img {
-                height: 50px;
+                height: 60px !important;
                 /* Smaller logo */
                 margin-top: 5px;
             }
@@ -2120,4 +2120,31 @@
     0% { transform: scale(1); box-shadow: 0 0 10px #ff3333; }
     50% { transform: scale(1.05); box-shadow: 0 0 20px #ff3333; }
     100% { transform: scale(1); box-shadow: 0 0 10px #ff3333; }
+}
+
+/* Mobile Register Badge Override */
+@media (max-width: 768px) {
+    .register-badge {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.95);
+        border-top: 1px solid var(--neon-green);
+        animation: none; /* Disable bounce on mobile */
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 -5px 20px rgba(0, 255, 65, 0.2);
+    }
+
+    .register-badge a {
+        width: 100%;
+        text-align: center;
+        display: block;
+        padding: 15px;
+        font-size: 1.1rem;
+        border-radius: 4px; /* Keep consistent with design */
+        box-sizing: border-box; /* Ensure padding doesn't overflow width */
+    }
 }

@@ -1,10 +1,10 @@
 const express = require('express');
+const path = require('path');
 const bcrypt = require('bcrypt');
-require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 const nodemailer = require('nodemailer');
 
 const app = express();
@@ -163,15 +163,25 @@ app.post('/api/auth/send-verification-otp', async (req, res) => {
     }
 
     // Check if email already registered
-    const existing = await new Promise((resolve) => {
+    // Check if email already registered (as Leader)
+    const existingTeam = await new Promise((resolve) => {
         db.get('SELECT id FROM teams WHERE email = ?', [email], (err, row) => {
             resolve(row);
         });
     });
 
-    if (existing) {
+    // Check if email already registered (as Member)
+    const existingMember = await new Promise((resolve) => {
+        db.get('SELECT id FROM members WHERE email = ?', [email], (err, row) => {
+            resolve(row);
+        });
+    });
+
+    if (existingTeam || existingMember) {
         return res.status(400).json({ error: 'This email is already registered.' });
     }
+
+
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     verificationOtps[email] = otp;
@@ -726,6 +736,7 @@ app.post('/api/admin/verify_payment', async (req, res) => {
 
 // Admin Update Team Endpoint
 app.post('/api/admin/update_team', async (req, res) => {
+    console.log("[ADMIN UPDATE] Request received", req.body);
     const { teamId, name, event, password, members } = req.body;
 
     if (!teamId || !members) {
@@ -748,10 +759,9 @@ app.post('/api/admin/update_team', async (req, res) => {
         // In the admin panel, we likely see the hash. If the admin edits it, they are sending a new Plaintext password.
         // We should assume if it looks like a hash ($2b$), they didn't change it. If it doesn't, it is a new password.
 
+        // If password is changed, update it directly (Plain Text as requested)
+        // We no longer hash it.
         let finalPassword = password;
-        if (password && !password.startsWith('$2b$')) {
-            finalPassword = await bcrypt.hash(password, 10);
-        }
 
         // Update Team Info
         await new Promise((resolve, reject) => {
@@ -780,13 +790,15 @@ app.post('/api/admin/update_team', async (req, res) => {
 
         for (let i = 0; i < members.length; i++) {
             const m = members[i];
-            // Infer role if not provided, though admin should probably provide it or we preserve it? 
-            // In the admin editor, we will send the role back.
+            // Infer role if not provided
             const role = m.role || (i === 0 ? 'LEADER' : 'MEMBER');
 
+            // Map frontend 'address' (or 'district') to 'district' column
+            const dist = m.address || m.district;
+
             await runQuery(
-                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, address, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, m.address, role]
+                `INSERT INTO members (team_db_id, name, age, email, phone, whatsapp, college, district, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [teamDbId, m.name, m.age, m.email, m.phone, m.whatsapp, m.college, dist, role]
             );
         }
 

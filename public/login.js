@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(err => {
                     btn.innerText = "[ ACCESS DENIED ]";
                     btn.style.color = "red";
-                    alert(err.message); // Show specific error to user
+                    showCustomAlert(err.message); // Show specific error to user
                     console.error(err);
                     setTimeout(() => {
                         btn.innerText = "[ ACCESS DASHBOARD ]";
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sendOtpBtn.addEventListener('click', () => {
         const email = emailInput.value;
         if (!email) {
-            alert("Enter a valid email.");
+            showCustomAlert("Enter a valid email.");
             return;
         }
 
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const teams = JSON.parse(localStorage.getItem('hackathon_teams') || '[]');
         const team = teams.find(t => t.email === email);
         if (!team) {
-            alert("No unit found with this email identifier.");
+            showCustomAlert("No unit found with this email identifier.");
             return;
         }
 
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         AuthMock.sendEmail(email, "MATRIX HACK: Security Override Code", `Your OTP is: ${sentOtp}`);
 
-        alert(`OTP SENT TO ${email}\n(Check Console: ${sentOtp})`);
+        showCustomAlert(`OTP SENT TO ${email}\n(Check Console: ${sentOtp})`);
 
         step1.style.display = 'none';
         step2.style.display = 'block';
@@ -117,11 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const newPass = newPassInput.value;
 
         if (otp !== sentOtp) {
-            alert("INVALID PROTOCOL. OTP MISMATCH.");
+            showCustomAlert("INVALID PROTOCOL. OTP MISMATCH.");
             return;
         }
         if (newPass.length < 4) {
-            alert("Password strength insufficient.");
+            showCustomAlert("Password strength insufficient.");
             return;
         }
 
@@ -133,10 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
             teams[teamIndex].password = newPass;
             localStorage.setItem('hackathon_teams', JSON.stringify(teams));
 
-            alert("SECURITY OVERRIDE SUCCESSFUL. New credentials active.");
+            showCustomAlert("SECURITY OVERRIDE SUCCESSFUL. New credentials active.");
             resetModal.style.display = 'none';
         } else {
-            alert("Error finding record.");
+            showCustomAlert("Error finding record.");
         }
     });
 
