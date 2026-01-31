@@ -747,7 +747,7 @@
 
         .logo-marquee-content {
             display: inline-block;
-            animation: marqueeScroll 20s linear infinite;
+            animation: marqueeScroll 60s linear infinite;
         }
 
         .logo-marquee-content img {
@@ -776,7 +776,7 @@
         .news-marquee-content {
             display: flex;
             width: max-content;
-            animation: marqueeScroll 300s linear infinite;
+            animation: marqueeScroll 60s linear infinite;
         }
 
         .news-marquee-content a {
@@ -1385,16 +1385,15 @@
             }
 
             .dept-title {
-                font-size: 1.1rem !important;
-                /* Smaller size to fit single line */
+                font-size: 1.4rem !important;
                 letter-spacing: 1px;
                 margin-top: 20px;
-                white-space: nowrap;
-                /* Force single line if possible */
+                white-space: normal; /* Allow wrapping */
                 width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                overflow: visible;
                 display: block;
+                text-align: center;
+                line-height: 1.4;
             }
 
             /* If screen is VERY small, allow wrap but center nicely */
@@ -1480,6 +1479,15 @@
             .register-badge a {
                 padding: 8px 16px;
                 font-size: 0.9rem;
+            }
+
+            /* Slower Marquees for Mobile */
+            .news-marquee-content {
+                animation-duration: 100s !important;
+            }
+
+            .logo-marquee-content {
+                animation-duration: 100s !important;
             }
         }
 

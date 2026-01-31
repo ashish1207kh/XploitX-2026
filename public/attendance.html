@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XploitX-2026 | Attendance</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- HTML5-QRCode Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            cursor: default; /* Restore cursor visibility */
+        }
+
+        .scanner-container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #reader {
+            width: 100%;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+            margin-top: 20px;
+            background: #000;
+        }
+
+        /* Customize SCAN button in html5-qrcode if possible, or just wrapper */
+        #reader button {
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: inherit;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .scan-result-container {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px dashed var(--neon-green);
+            background: rgba(0, 20, 0, 0.9);
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-text { color: var(--neon-green); }
+        .error-text { color: #ff3333; }
+        
+        .loading-text {
+            color: #00BFFF;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink { 50% { opacity: 0.5; } }
+    </style>
+</head>
+
+<body>
+
+    <nav style="position: relative; padding: 20px; text-align: center; border-bottom: 1px solid #333;">
+        <h1 style="color: var(--neon-green); margin: 0;">XPLOITX ATTENDANCE SYSTEM</h1>
+        <a href="index.html" style="color: #aaa; text-decoration: none; font-size: 0.9rem; margin-top: 5px; display: inline-block;">[ Return Home ]</a>
+    </nav>
+
+
+    <div style="text-align: center; margin: 20px;">
+        <div class="toggle-container" style="display: inline-flex; border: 1px solid var(--neon-green); border-radius: 5px; overflow: hidden;">
+            <button id="btn-scan" onclick="switchTab('scan')" style="background: var(--neon-green); color: #000; border: none; padding: 10px 30px; cursor: pointer; font-weight: bold; font-family: inherit;">SCAN QR</button>
+            <button id="btn-details" onclick="switchTab('details')" style="background: transparent; color: var(--neon-green); border: none; padding: 10px 30px; cursor: pointer; font-weight: bold; font-family: inherit;">DETAILS</button>
+        </div>
+    </div>
+
+    <!-- Scanner Section -->
+    <div id="scan-section" class="scanner-container">
+        <h2 class="section-header">>_ SCAN_ENTRY_PASS</h2>
+        
+        <p style="color: #ccc; margin-bottom: 20px;">
+            Position the QR code within the frame to mark attendance.
+        </p>
+        
+        <!-- Scanner Videoshot -->
+        <div id="reader"></div>
+        
+        <!-- Result Display -->
+        <div id="result" class="scan-result-container">
+            <div id="scan-feedback"></div>
+            <div id="team-details" style="margin-top: 15px; text-align: left; font-size: 0.9rem;"></div>
+            
+            <button onclick="resumeScanning()" class="cta-btn" style="margin-top: 20px; width: 100%;">
+                <i class="fas fa-qrcode"></i> SCAN NEXT
+            </button>
+        </div>
+
+        <div id="error-msg" style="color: #ff3333; margin-top: 20px; display: none;"></div>
+    </div>
+
+    <!-- Details Section -->
+    <div id="details-section" class="scanner-container" style="display: none; max-width: 900px; text-align: left;">
+        <h2 class="section-header">>_ ATTENDANCE_DATABASE</h2>
+        <div style="margin-bottom: 10px; text-align: right;">
+            <button onclick="downloadPDF()" class="cta-btn" style="padding: 5px 15px; font-size: 0.8rem; margin-right: 10px;"><i class="fas fa-file-pdf"></i> DOWNLOAD PDF</button>
+            <button onclick="loadAttendance()" class="cta-btn" style="padding: 5px 15px; font-size: 0.8rem;"><i class="fas fa-sync"></i> REFRESH</button>
+        </div>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; color: #eee; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--neon-green); text-align: left;">
+                        <th style="padding: 10px;">ID</th>
+                        <th style="padding: 10px;">Team ID</th>
+                        <th style="padding: 10px;">Team Name</th>
+                        <th style="padding: 10px;">Leader</th>
+                        <th style="padding: 10px;">Phone</th>
+                        <th style="padding: 10px;">Status</th>
+                        <th style="padding: 10px;">Time</th>
+                    </tr>
+                </thead>
+                <tbody id="attendance-body">
+                    <tr><td colspan="7" style="text-align: center; padding: 20px; color: #aaa;">Loading records...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let html5QrCode; 
+        
+        function initScannerLib() {
+             try {
+                if(!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+             } catch(e) {
+                 console.error("Lib Init Failed", e);
+                 document.getElementById('error-msg').innerText = "Scanner verification failed. Please refresh.";
+                 document.getElementById('error-msg').style.display = 'block';
+             }
+        }
+        let isScanning = false;
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        // Define API Base URL
+        const isLocal = window.location.protocol === 'file:' ||
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1';
+        const API_BASE_URL = isLocal ? 'http://localhost:3000' : '';
+
+        // Initialize Tab
+        function switchTab(tab) {
+            const btnScan = document.getElementById('btn-scan');
+            const btnDetails = document.getElementById('btn-details');
+            const secScan = document.getElementById('scan-section');
+            const secDetails = document.getElementById('details-section');
+
+            if (tab === 'scan') {
+                // UI Toggle
+                btnScan.style.background = 'var(--neon-green)';
+                btnScan.style.color = '#000';
+                btnDetails.style.background = 'transparent';
+                btnDetails.style.color = 'var(--neon-green)';
+                
+                // Section Toggle
+                secScan.style.display = 'block';
+                secDetails.style.display = 'none';
+
+                // Manage Scanner
+                startScanner();
+            } else {
+                // UI Toggle
+                btnDetails.style.background = 'var(--neon-green)';
+                btnDetails.style.color = '#000';
+                btnScan.style.background = 'transparent';
+                btnScan.style.color = 'var(--neon-green)';
+
+                // Section Toggle
+                isScanning = false; // Prevent logic updates
+                secScan.style.display = 'none';
+                secDetails.style.display = 'block';
+
+                // Manage Scanner
+                stopScanner();
+
+                // Load Data
+                loadAttendance();
+            }
+        }
+
+        // Scanner Logic
+        async function startScanner() {
+            try {
+                // If already scanning or element hidden, abort
+                if (html5QrCode.isScanning) return; 
+                
+                document.getElementById('error-msg').style.display = 'none';
+
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    onScanSuccess, 
+                    onScanFailure
+                );
+                
+                isScanning = true;
+                
+            } catch (err) {
+                console.error("Camera start failed", err);
+                document.getElementById('error-msg').innerText = "Camera Error: " + err;
+                document.getElementById('error-msg').style.display = 'block';
+                isScanning = false;
+            }
+        }
+
+        async function stopScanner() {
+             try {
+                if (html5QrCode.isScanning) {
+                    await html5QrCode.stop();
+                    console.log("Scanner stopped.");
+                }
+             } catch(err) {
+                 console.warn("Stop failed", err);
+             }
+             isScanning = false;
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if(!isScanning) return;
+            
+            // Just pause video feed logic
+            html5QrCode.pause(); 
+            isScanning = false; 
+            
+            console.log(`Code matched = ${decodedText}`, decodedResult);
+            
+            let teamId = decodedText;
+            try {
+                const data = JSON.parse(decodedText);
+                if(data.teamId) teamId = data.teamId;
+            } catch(e) {
+                console.log("NOT JSON");
+            }
+
+            processAttendance(teamId);
+        }
+
+        function onScanFailure(error) {
+            // No-op
+        }
+
+        async function processAttendance(teamId) {
+            const feedbackEl = document.getElementById('scan-feedback');
+            const detailsEl = document.getElementById('team-details');
+            const resultBox = document.getElementById('result');
+            
+            resultBox.style.display = 'block';
+            feedbackEl.innerHTML = '<span class="loading-text">PROCESSING...</span>';
+            detailsEl.innerHTML = '';
+            
+            try {
+                console.log("Sending request for Team ID:", teamId);
+                const response = await fetch(`${API_BASE_URL}/api/attendance/mark_present`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ teamId: teamId })
+                });
+
+                const text = await response.text();
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error("Invalid JSON: " + text.substring(0, 100));
+                }
+                
+                if(response.ok) {
+                    feedbackEl.innerHTML = `<h3 class="success-text"><i class="fas fa-check-circle"></i> ATTENDANCE MARKED</h3>`;
+                    detailsEl.innerHTML = `
+                        <p><strong>Team ID:</strong> ${teamId}</p>
+                        <p><strong>Status:</strong> PRESENT</p>
+                        <p style="color: #aaa;">${data.message}</p>
+                    `;
+                } else {
+                    feedbackEl.innerHTML = `<h3 class="error-text"><i class="fas fa-times-circle"></i> FAILED</h3>`;
+                    detailsEl.innerHTML = `<p>${data.error || 'Unknown Error'}</p>`;
+                }
+                
+            } catch (err) {
+                console.error("Attendance Error:", err);
+                feedbackEl.innerHTML = `<h3 class="error-text">NETWORK/SERVER ERROR</h3>`;
+                detailsEl.innerHTML = `<p>${err.message}</p>`;
+            }
+        }
+
+        function resumeScanning() {
+            document.getElementById('result').style.display = 'none';
+            isScanning = true;
+            html5QrCode.resume();
+        }
+
+        async function downloadPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Style: Black Background
+                doc.setFillColor(0, 0, 0);
+                doc.rect(0, 0, 210, 297, "F");
+
+                // Header
+                doc.setTextColor(0, 255, 65); // Neon Green
+                doc.setFont("courier", "bold");
+                doc.setFontSize(22);
+                doc.text("XPLOITX-2026 | ATTENDANCE REPORT", 105, 20, null, null, "center");
+
+                doc.setFontSize(10);
+                doc.setTextColor(255, 255, 255);
+                doc.text(`Generated: ${new Date().toLocaleString()}`, 105, 30, null, null, "center");
+
+                // Fetch Data
+                const res = await fetch(`${API_BASE_URL}/api/attendance/all`);
+                if (!res.ok) throw new Error("Failed to fetch data");
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    alert("No data to download.");
+                    return;
+                }
+
+                // Prepare Table Rows
+                const tableData = data.map(r => [
+                    r.team_id || '-',
+                    r.team_name || '-',
+                    r.team_leader_name || '-',
+                    r.team_leader_phone || '-',
+                    r.status || 'ABSENT',
+                    r.entry_time ? new Date(r.entry_time.replace(' ', 'T') + 'Z').toLocaleString() : '-'
+                ]);
+
+                // AutoTable
+                doc.autoTable({
+                    head: [['Team ID', 'Team Name', 'Leader', 'Phone', 'Status', 'Time']],
+                    body: tableData,
+                    startY: 40,
+                    theme: 'grid',
+                    headStyles: { 
+                        fillColor: [0, 50, 0], 
+                        textColor: [0, 255, 65], 
+                        lineColor: [0, 255, 65], 
+                        lineWidth: 0.1,
+                        font: "courier",
+                        fontStyle: "bold"
+                    },
+                    bodyStyles: { 
+                        fillColor: [0, 0, 0], 
+                        textColor: [220, 220, 220], 
+                        lineColor: [0, 50, 0],
+                        font: "courier"
+                    },
+                    alternateRowStyles: { 
+                        fillColor: [5, 20, 5] 
+                    },
+                    styles: { 
+                        lineColor: [0, 50, 0],
+                        lineWidth: 0.1
+                    }
+                });
+
+                doc.save("XploitX_Attendance_Report.pdf");
+
+            } catch (err) {
+                console.error("PDF Error:", err);
+                alert("Failed to generate PDF: " + err.message);
+            }
+        }
+
+        // --- Details Logic ---
+        async function loadAttendance() {
+            const tbody = document.getElementById('attendance-body');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Fetching Data...</td></tr>';
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/attendance/all`);
+                if(!res.ok) throw new Error("Failed to fetch");
+                
+                const rows = await res.json();
+                
+                if(rows.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--neon-green); font-size: 1.2rem; border: 1px dashed var(--neon-green);">[ SYSTEM_LOG: NO_DATA_FOUND ]<br><span style="font-size: 0.9rem; color: #aaa;">Attendance database is currently empty.</span></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = rows.map(r => `
+                    <tr style="border-bottom: 1px solid #333;">
+                        <td style="padding: 10px;">${r.id}</td>
+                        <td style="padding: 10px; color: var(--neon-green);">${r.team_id || '-'}</td>
+                        <td style="padding: 10px;">${r.team_name || '-'}</td>
+                        <td style="padding: 10px;">${r.team_leader_name || '-'}</td>
+                        <td style="padding: 10px;">${r.team_leader_phone || '-'}</td>
+                        <td style="padding: 10px;">
+                            <span style="color: ${r.status === 'PRESENT' ? '#00FF41' : '#ff3333'}">${r.status || 'ABSENT'}</span>
+                        </td>
+                        <td style="padding: 10px; color: #aaa; font-size: 0.8rem;">
+                            ${r.entry_time ? new Date(r.entry_time.replace(' ', 'T') + 'Z').toLocaleString() : '-'}
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">Error: ${e.message}</td></tr>`;
+            }
+        }
+
+        // Start default
+        // Start scanner only after interaction usually, but let's try auto since user asked.
+        window.onload = () => {
+             // Init lib first
+             initScannerLib();
+             // Default to Scan tab
+             switchTab('scan');
+        };
+
+    </script>
+
+</body>
+</html>
+

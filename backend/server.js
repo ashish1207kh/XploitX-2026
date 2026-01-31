@@ -56,7 +56,8 @@ function initDb() {
         event TEXT,
         transaction_id TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        payment_proof TEXT
+        payment_proof TEXT,
+        payment_verified INTEGER DEFAULT 0
     )`);
 
     // Add column if not exists (for existing DBs)
@@ -80,6 +81,20 @@ function initDb() {
         role TEXT,
         FOREIGN KEY(team_db_id) REFERENCES teams(id)
     )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS attendance (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        team_id TEXT UNIQUE,
+        team_name TEXT UNIQUE,
+        team_leader_name TEXT,
+        team_leader_phone TEXT UNIQUE,
+        status TEXT DEFAULT 'ABSENT', 
+        entry_time DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    // Add columns if not exist (Migration)
+    db.run(`ALTER TABLE attendance ADD COLUMN entry_time DATETIME DEFAULT CURRENT_TIMESTAMP`, (err) => { /* Ignore */ });
+    db.run(`ALTER TABLE attendance ADD COLUMN status TEXT DEFAULT 'ABSENT'`, (err) => { /* Ignore */ });
 }
 
 
@@ -226,12 +241,48 @@ app.post('/api/auth/register', async (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // CHECK 1: Team Name Uniqueness
+    const existingTeamName = await new Promise((resolve) => {
+        db.get('SELECT id FROM teams WHERE name = ? COLLATE NOCASE', [teamName], (err, row) => {
+            resolve(row);
+        });
+    });
+
+    if (existingTeamName) {
+        return res.status(400).json({ error: 'Team Name is already taken. Please choose another.' });
+    }
+
+    // CHECK 2: Validate Phone/WhatsApp Length (10 Digits)
+    for (const m of members) {
+        if (m.phone && !/^\d{10}$/.test(m.phone)) {
+            return res.status(400).json({ error: `Invalid Phone Number for ${m.name}. Must be exactly 10 digits.` });
+        }
+        if (m.whatsapp && !/^\d{10}$/.test(m.whatsapp)) {
+            return res.status(400).json({ error: `Invalid WhatsApp Number for ${m.name}. Must be exactly 10 digits.` });
+        }
+    }
+
     // Validate Email Domains (Prevent fake/typo domains)
     for (const m of members) {
         if (m.email) {
             const isValid = await validateEmailDomain(m.email);
             if (!isValid) {
                 return res.status(400).json({ error: `Invalid email domain: '${m.email}'. Please check the spelling or use a valid provider.` });
+            }
+        }
+    }
+
+    // Check if Phone Numbers already registered
+    for (const m of members) {
+        if (m.phone) {
+            const existingPhone = await new Promise((resolve) => {
+                db.get('SELECT id FROM members WHERE phone = ?', [m.phone], (err, row) => {
+                    resolve(row);
+                });
+            });
+
+            if (existingPhone) {
+                return res.status(400).json({ error: `Phone number '${m.phone}' is already registered.` });
             }
         }
     }
@@ -294,7 +345,7 @@ app.post('/api/auth/register', async (req, res) => {
 
                     let body = `Dear ${m.name},
 
-Thank you for registering for **XploitX 2k26**, the Department of Cyber Security's premier cyberfest! We are thrilled to have you join us for this high-energy technical exchange.
+Thank you for registering for *XploitX 2k26*, the Department of Cyber Security's premier cyberfest! We are thrilled to have you join us for this high-energy technical exchange.
 
 This email confirms that your registration has been successfully received. We are hard at work preparing an incredible lineup of events, challenges, and workshops designed to push your technical boundaries.`;
 
@@ -311,7 +362,7 @@ Password : ${password}
 
                     body += `
 
-**Event Details:**
+*Event Details:*
 
 * Dates: March 13th & 14th, 2026
 * Venue: Prathyusha Engineering College Campus
@@ -319,7 +370,7 @@ Password : ${password}
 
 We truly appreciate your interest and presence at our event. Your participation is what makes XploitX a hub for innovation and cybersecurity excellence.
 
-**Next Steps:**
+*Next Steps:*
 
 * Keep an eye on your inbox for the detailed event schedule and specific competition guidelines.
 * Make sure to bring your college ID card and a copy of this confirmation email (digital or printed) for a smooth check-in process.
@@ -328,7 +379,7 @@ We look forward to seeing you there and witnessing your skills in action!
 
 Best regards,
 
-**The XploitX 2k26 Organizing Committee**
+*The XploitX 2k26 Organizing Committee*
 Department of Cyber Security
 Prathyusha Engineering College`;
 
@@ -654,12 +705,30 @@ app.post('/api/team/:id/update', async (req, res) => {
 });
 
 // Upload Payment Proof
-app.post('/api/payment/upload', upload.single('paymentProof'), (req, res) => {
+// Upload Payment Proof
+app.post('/api/payment/upload', upload.single('paymentProof'), async (req, res) => {
     const { teamId, utrNumber } = req.body;
     const file = req.file;
 
     if (!file || !teamId) {
         return res.status(400).json({ error: 'Missing file or Team ID' });
+    }
+
+    // Check Unique UTR
+    if (utrNumber) {
+        const existingUTR = await new Promise((resolve) => {
+            db.get('SELECT team_id FROM teams WHERE transaction_id = ?', [utrNumber], (err, row) => {
+                resolve(row);
+            });
+        });
+
+        if (existingUTR && existingUTR.team_id !== teamId) {
+            // Delete the uploaded file since we are rejecting
+            if (file && file.path) {
+                try { fs.unlinkSync(file.path); } catch (e) { console.error("Error deleting file:", e); }
+            }
+            return res.status(400).json({ error: 'This Transaction Number (UTR) has already been used.' });
+        }
     }
 
     const filePath = '/uploads/' + file.filename;
@@ -688,7 +757,7 @@ app.post('/api/admin/verify_payment', async (req, res) => {
             });
         });
 
-        // 2. Fetch Leader Email to send confirmation
+        // 2. Fetch Team & Leader Data
         const teamData = await new Promise((resolve, reject) => {
             db.get(`SELECT id, name FROM teams WHERE team_id = ?`, [teamId], (err, row) => {
                 if (err) reject(err);
@@ -698,40 +767,149 @@ app.post('/api/admin/verify_payment', async (req, res) => {
 
         if (teamData) {
             const leader = await new Promise((resolve, reject) => {
-                db.get(`SELECT email, name FROM members WHERE team_db_id = ? AND role = 'LEADER'`, [teamData.id], (err, row) => {
+                db.get(`SELECT email, name, phone FROM members WHERE team_db_id = ? AND role = 'LEADER'`, [teamData.id], (err, row) => {
                     if (err) reject(err);
                     else resolve(row);
                 });
             });
 
-            if (leader && leader.email) {
-                const subject = "XploitX-2026: Payment Verified & Registration Confirmed";
-                const htmlContent = `
-                    <div style="font-family: monospace; padding: 20px; background: #000; color: #00FF41;">
-                        <h2 style="border-bottom: 2px solid #00FF41; padding-bottom: 10px;">> PAYMENT_VERIFIED</h2>
-                        <p>Dear ${leader.name},</p>
-                        <p>Your payment for team <strong>${teamData.name}</strong> (${teamId}) has been successfully verified.</p>
-                        <p>Your slot for <strong>XploitX-2026</strong> is now fully confirmed.</p>
-                        <div style="margin: 20px 0; border: 1px dashed #00FF41; padding: 10px;">
-                            STATUS: CONFIRMED<br>
-                            ACCESS_LEVEL: GRANTED
-                        </div>
-                        <p>See you at the event!</p>
-                        <p>Regards,<br>XploitX Team</p>
-                    </div>
-                 `;
+            if (leader) {
+                // 3. Insert into Attendance Table (Default ABSENT)
+                // Use INSERT OR IGNORE to prevent duplicates if verified multiple times
+                await new Promise((resolve, reject) => {
+                    db.run(`INSERT OR IGNORE INTO attendance (team_id, team_name, team_leader_name, team_leader_phone, status) VALUES (?, ?, ?, ?, 'ABSENT')`,
+                        [teamId, teamData.name, leader.name, leader.phone], (err) => {
+                            if (err) console.error("Attendance Insert Error:", err);
+                            resolve(); // Resolve anyway to continue
+                        });
+                });
 
-                // Fire and forget email
-                sendEmail(leader.email, subject, "Your payment has been verified. Registration Confirmed.", htmlContent);
+                // 4. Generate QR Code
+                const qrData = JSON.stringify({
+                    teamId: teamId,
+                    teamName: teamData.name,
+                    leaderName: leader.name,
+                    leaderPhone: leader.phone
+                });
+
+                const QRCode = require('qrcode');
+                const qrImage = await QRCode.toDataURL(qrData);
+
+                // 5. Send Email with QR
+                if (leader.email) {
+                    const subject = "XploitX-2026: Registration Confirmed & Entry Pass";
+                    const htmlContent = `
+                        <div style="font-family: monospace; padding: 20px; background: #000; color: #00FF41;">
+                            <h2 style="border-bottom: 2px solid #00FF41; padding-bottom: 10px;">> ACCESS_GRANTED</h2>
+                            <p>Dear ${leader.name},</p>
+                            <p>Your payment for team <strong>${teamData.name}</strong> (${teamId}) has been successfully verified.</p>
+                            
+                            <div style="margin: 20px 0; border: 1px dashed #00FF41; padding: 20px; text-align: center; background: #051a05;">
+                                <h3 style="margin-top: 0;">YOUR EVENT ENTRY PASS</h3>
+                                <img src="cid:event-qr-code" alt="Entry QR Code" style="width: 200px; height: 200px; border: 4px solid #fff;">
+                                <p style="margin-top: 10px; font-weight: bold; color: #fff;">${teamId}</p>
+                            </div>
+
+                            <p>Follow this link to join my WhatsApp group: <a href="https://chat.whatsapp.com/Gc8vl1uJvAgHuzLhQjMdCb" style="color: #007bffff; text-decoration: underline;">Click here to join</a></p>
+                            
+                            <hr style="border: 1px solid #333; margin: 20px 0;">
+                            <p>Your slot for XploitX-2026 is now fully confirmed.</p>
+                            <p style="font-weight: bold; color: #fff;">
+                                STATUS: <span style="color: #00FF41;">CONFIRMED</span><br>
+                                ACCESS_LEVEL: <span style="color: #00FF41;">GRANTED</span>
+                            </p>
+                            <p>See you at the event!</p>
+
+                            <p>Regards,<br>XploitX Team</p>
+                        </div>
+                     `;
+
+                    // Attachments logic for Nodemailer
+                    const attachments = [{
+                        filename: 'header-qrcode.png',
+                        content: qrImage.split("base64,")[1],
+                        encoding: 'base64',
+                        cid: 'event-qr-code' // same cid value as in the html img src
+                    }];
+
+                    try {
+                        const info = await transporter.sendMail({
+                            from: `"XploitX-2026" <${process.env.EMAIL_USER}>`,
+                            to: leader.email,
+                            subject: subject,
+                            html: htmlContent,
+                            attachments: attachments
+                        });
+                        console.log("Verified Email Sent: %s", info.messageId);
+                    } catch (error) {
+                        console.error("Error sending verified email:", error);
+                    }
+                }
             }
         }
 
-        res.json({ success: true, message: 'Payment Verified & Email Sent' });
+        res.json({ success: true, message: 'Payment Verified, Attendance initialized, & Email Sent' });
 
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
     }
+});
+
+// [NEW] Scan QR / Mark Attendance Endpoint
+app.post('/api/attendance/mark_present', async (req, res) => {
+    const { teamId } = req.body;
+    if (!teamId) return res.status(400).json({ error: 'Team ID required' });
+
+    try {
+        // Update Status to PRESENT
+        const result = await new Promise((resolve, reject) => {
+            db.run(`UPDATE attendance SET status = 'PRESENT', entry_time = CURRENT_TIMESTAMP WHERE team_id = ?`, [teamId], function (err) {
+                if (err) reject(err);
+                else resolve(this);
+            });
+        });
+
+        if (result.changes === 0) {
+            // If no row found, maybe they weren't initialized properly? Check teams table
+            const team = await new Promise(r => db.get('SELECT * FROM teams WHERE team_id = ?', [teamId], (err, row) => r(row)));
+            if (!team) return res.status(404).json({ error: 'Team not found in system' });
+
+            // Insert ad-hoc if missing (Fallback)
+            const leader = await new Promise(r => db.get("SELECT * FROM members WHERE team_db_id = ? AND role = 'LEADER'", [team.id], (err, row) => r(row)));
+            if (leader) {
+                // Use await with a Promise for the callback-based db.run
+                await new Promise((resolve, reject) => {
+                    db.run(`INSERT INTO attendance (team_id, team_name, team_leader_name, team_leader_phone, status) VALUES (?, ?, ?, ?, 'PRESENT')`,
+                        [teamId, team.name, leader.name, leader.phone], function (err) {
+                            if (err) {
+                                console.error("Fallback Insert Error:", err);
+                                reject(err);
+                            } else {
+                                resolve();
+                            }
+                        });
+                });
+                return res.json({ success: true, message: 'Marked PRESENT (New Entry)' });
+            }
+            return res.status(404).json({ error: 'Attendance record not found and cannot be created.' });
+        }
+
+        res.json({ success: true, message: `Team ${teamId} marked as PRESENT` });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// [NEW] Get All Attendance Data
+app.get('/api/attendance/all', (req, res) => {
+    db.all("SELECT * FROM attendance ORDER BY entry_time DESC", [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
 });
 
 // Admin Update Team Endpoint

@@ -751,7 +751,8 @@
 
                 window.teamsData.forEach(t => {
                     const leader = t.members.find(m => m.role === 'LEADER') || t.members[0];
-                    csv += `${t.team_id},"${t.name}",${t.event},"${leader ? leader.name : ''}",${leader ? leader.phone : ''},${leader ? leader.whatsapp : ''},${t.members.length},${t.payment_verified ? 'Yes' : 'No'}\n`;
+                    // Using "=""Value""" syntax to force Excel to treat numbers as text and avoid scientific notation
+                    csv += `${t.team_id},"${t.name}","${t.event}","${leader ? leader.name : ''}","=""${leader ? leader.phone : ''}""","=""${leader ? leader.whatsapp : ''}""",${t.members.length},${t.payment_verified ? 'Yes' : 'No'}\n`;
                 });
 
                 const blob = new Blob([csv], { type: 'text/csv' });

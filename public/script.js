@@ -147,6 +147,9 @@ if (regForm) {
                     if (nameParts.length > 1) {
                         input.name = `member${newIndex}_${nameParts[1]}`;
                     }
+
+                    // Reset verification status
+                    delete input.dataset.verified;
                 });
 
                 // Reset Verification State for Clone
@@ -287,7 +290,35 @@ if (regForm) {
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
                     return; // Stop submission
+                }
 
+                // Validate Phone and WhatsApp Length (Exactly 10 digits)
+                for (const m of members) {
+                    if (m.phone && m.phone.length !== 10) {
+                        showCustomAlert(`Invalid Phone Number for ${m.name}. Must be exactly 10 digits.`);
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                    if (m.whatsapp && m.whatsapp.length !== 10) {
+                        showCustomAlert(`Invalid WhatsApp Number for ${m.name}. Must be exactly 10 digits.`);
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                }
+
+                // Check for Duplicate Phone Numbers within the Team
+                const phones = members.map(m => m.phone ? m.phone.trim() : "");
+                // Filter out empty phones if any
+                const validPhones = phones.filter(p => p.length > 0);
+
+                const uniquePhones = new Set(validPhones);
+                if (uniquePhones.size !== validPhones.length) {
+                    showCustomAlert("Phone number should be unique. Please provide different mobile numbers for each member.");
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                    return; // Stop submission
                 }
 
                 const payload = {
@@ -389,20 +420,20 @@ function initPaymentPage() {
     if (qrImg) {
         if (eventName === '24 Hrs Hackathon') {
             if (memberCount === 2) {
-                qrImg.src = 'Main Hack(2 head).jpeg';
+                qrImg.src = 'Main%20Hack(2%20head).jpeg';
                 if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ 500.00`;
             } else if (memberCount === 3) {
-                qrImg.src = 'Main Hack(3 head).jpeg';
+                qrImg.src = 'Main%20Hack(3%20head).jpeg';
                 if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ 750.00`;
             } else if (memberCount === 4) {
-                qrImg.src = 'Main Hack(4 head).jpeg';
+                qrImg.src = 'Main%20Hack(4%20head).jpeg';
                 if (amountDisplay) amountDisplay.innerText = `AMOUNT: ₹ 1000.00`;
             } else {
-                // Fallback / Single?
-                qrImg.src = 'Main Hack.jpeg';
+                // Fallback (Default to 4 head if count is unexpected)
+                qrImg.src = 'Main%20Hack(4%20head).jpeg';
             }
-        } else if (eventName === 'paper_presentation') {
-            qrImg.src = 'Paper Presentation.jpeg';
+        } else if (eventName === 'paper_presentation' || eventName === 'Paper Presentation') {
+            qrImg.src = 'Paper%20Presentation.jpeg';
         }
     }
 

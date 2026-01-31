@@ -91,11 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
 
             try {
+                // Add Timeout to Fetch (10 seconds)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
                 const res = await fetch(`${API_BASE_URL}/api/auth/verify-email-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, otp })
+                    body: JSON.stringify({ email, otp }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
+
                 const data = await res.json();
 
                 if (data.success) {
@@ -107,16 +114,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Mark EMAIL input as verified using a data attribute
                     emailInput.dataset.verified = "true";
 
-                    // Mark form as 'partially' verified? 
-                    // We need to check ALL members on submit.
                     showCustomAlert(`Email (${email}) Verified Successfully!`);
                 } else {
-                    showCustomAlert("Incorrect OTP. Please try again.");
+                    showCustomAlert(data.error || "Incorrect OTP. Please try again.");
                     btn.innerText = "[ CONFIRM OTP ]";
                     btn.disabled = false;
                 }
             } catch (err) {
-                showCustomAlert("Error verifying OTP");
+                console.error(err);
+                if (err.name === 'AbortError') {
+                    showCustomAlert("Verification timed out. Please try again.");
+                } else {
+                    showCustomAlert("Error verifying OTP: " + (err.message || "Unknown Error"));
+                }
                 btn.innerText = "[ CONFIRM OTP ]";
                 btn.disabled = false;
             }
